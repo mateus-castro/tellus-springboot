@@ -1,2 +1,1 @@
-# tellus-springboot
-API em SpringBoot do software TELLUS
+# adicionar passo a passo para execução do backend :)
