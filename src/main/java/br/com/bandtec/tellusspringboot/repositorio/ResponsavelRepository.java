@@ -9,10 +9,10 @@ public interface ResponsavelRepository extends JpaRepository<Responsavel, Intege
 
     List<Responsavel> findAll();
 
-    Responsavel findResponsavelByCpfAndSenha(String cpf, String senha);
+    Responsavel findResponsavelByEmailAndSenha(String email, String senha);
     Responsavel findResponsavelByCpf(String cpf);
 
-    boolean existsByCpfAndSenha(String cpf, String senha);
+    boolean existsByEmailAndSenha(String email, String senha);
     boolean existsByCpf(String cpf);
     void deleteByCpf(String cpf);
 }

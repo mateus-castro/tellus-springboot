@@ -10,6 +10,7 @@ public class Aluno {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    private String ra;
     private String nome;
     private String dataNasc;
     private String serie;
@@ -53,5 +54,13 @@ public class Aluno {
 
     public void setTurma(String turma) {
         this.turma = turma;
+    }
+
+    public String getRa() {
+        return ra;
+    }
+
+    public void setRa(String ra) {
+        this.ra = ra;
     }
 }

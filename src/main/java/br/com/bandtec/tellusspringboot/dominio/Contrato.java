@@ -16,7 +16,9 @@ public class Contrato {
 
     @OneToOne
     private Aluno fkAluno;
-    private Double mensalidade;
+
+    private Double valor;
+    private Integer numParcelas;
     private String dataFim;
     private String dataInicio;
 
@@ -52,12 +54,20 @@ public class Contrato {
         this.fkAluno = fkAluno;
     }
 
-    public Double getMensalidade() {
-        return mensalidade;
+    public Double getValor() {
+        return valor;
     }
 
-    public void setMensalidade(Double mensalidade) {
-        this.mensalidade = mensalidade;
+    public void setValor(Double valor) {
+        this.valor = valor;
+    }
+
+    public Integer getNumParcelas() {
+        return numParcelas;
+    }
+
+    public void setNumParcelas(Integer numParcelas) {
+        this.numParcelas = numParcelas;
     }
 
     public String getDataFim() {

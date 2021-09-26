@@ -8,9 +8,10 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static br.com.bandtec.tellusspringboot.TellusApplication.listaReqTratadas;
 import static br.com.bandtec.tellusspringboot.utils.Requisicao.filaReq;
-import static br.com.bandtec.tellusspringboot.controller.UsuarioController.listaReqTratadas;
 
+// TODO revisar funcionamento do scheduler
 @Component
 public class Agendamento {
 

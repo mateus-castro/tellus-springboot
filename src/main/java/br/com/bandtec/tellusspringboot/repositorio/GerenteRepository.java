@@ -8,8 +8,8 @@ import java.util.List;
 public interface GerenteRepository extends JpaRepository<Gerente, Integer> {
     List<Gerente> findAll();
 
-    Gerente findByCpfAndSenha(String cpf, String senha);
-    boolean existsByCpfAndSenha(String cpf, String senha);
+    Gerente findByEmailAndSenha(String email, String senha);
+    boolean existsByEmailAndSenha(String email, String senha);
     boolean existsByCpf(String cpf);
     void deleteByCpf(String cpf);
 }
