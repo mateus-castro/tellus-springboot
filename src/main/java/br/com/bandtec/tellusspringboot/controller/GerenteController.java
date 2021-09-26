@@ -4,9 +4,7 @@ import br.com.bandtec.tellusspringboot.dominio.Escola;
 import br.com.bandtec.tellusspringboot.dominio.Gerente;
 import br.com.bandtec.tellusspringboot.dominio.Login;
 import br.com.bandtec.tellusspringboot.dominio.Responsavel;
-import br.com.bandtec.tellusspringboot.repositorio.EscolaRepository;
-import br.com.bandtec.tellusspringboot.repositorio.GerenteRepository;
-import br.com.bandtec.tellusspringboot.repositorio.ResponsavelRepository;
+import br.com.bandtec.tellusspringboot.repositorio.*;
 import br.com.bandtec.tellusspringboot.utils.ListaObjeto;
 import br.com.bandtec.tellusspringboot.utils.RegistroArquivo;
 import br.com.bandtec.tellusspringboot.utils.Requisicao;
@@ -29,6 +27,16 @@ public class GerenteController {
 
     @Autowired
     private GerenteRepository repositoryGerente;
+
+    @Autowired
+    private ResponsavelRepository respRepo;
+
+    @Autowired
+    private AlunoRepository alunoRepo;
+
+    @Autowired
+    private ContratoRepository contratoRepo;
+
 
     @CrossOrigin
     @GetMapping
@@ -72,24 +80,29 @@ public class GerenteController {
 
     @CrossOrigin
     @PostMapping("/csv-download")
-    public ResponseEntity<String> postCsv(@RequestParam MultipartFile file) throws IOException {
+    public ResponseEntity<String> postCsv(@RequestParam("file") MultipartFile file, @RequestParam("cpf") String cpfGerente) throws IOException {
         if(!Objects.equals(file.getContentType(), "text/csv")){
             return ResponseEntity.status(400).body("Arquivo enviado não está no formato correto. Envie um arquivo .csv :).");
-        } else {
+        }
+
+        if(repositoryGerente.existsByCpf(cpfGerente)) {
             byte[] fileBytes = file.getBytes();
             String arquivo = new String(fileBytes);
-            ArrayList<String> response = new RegistroArquivo().insereRegistrosDeArquivo(arquivo, new Escola());
+            ArrayList<String> response = new RegistroArquivo().insereRegistrosDeArquivo(arquivo, repositoryGerente.findByCpf(cpfGerente).getFkEscola(), respRepo, alunoRepo, contratoRepo);
             if(response.size() > 0){
                 StringBuilder summary = new StringBuilder();
                 for (String index: response) {
                     summary.append(index);
                 }
-                return ResponseEntity.status(204).body(summary.toString());
+                return ResponseEntity.status(200).body(summary.toString());
             } else {
                 return ResponseEntity.status(200).body("OK");
             }
-
+        } else {
+            return ResponseEntity.status(404).body("Gerente informado não foi encontrado.");
         }
+
+
     }
 
 }
