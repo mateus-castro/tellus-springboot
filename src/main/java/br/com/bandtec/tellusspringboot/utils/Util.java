@@ -2,12 +2,18 @@ package br.com.bandtec.tellusspringboot.utils;
 
 public class Util {
 
-    // TODO alterar número de caracteres máximos no registro de cpf no banco para poder contar os caracteres especiais
-    public static boolean validaCpf(String cpf){
+    public static String validaCpf(String cpf){
         if (cpf.matches("([0-9]{2}[\\.]?[0-9]{3}[\\.]?[0-9]{3}[\\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\\.]?[0-9]{3}[\\.]?[0-9]{3}[-]?[0-9]{2})")){
-            return true;
+            cpf = cpf
+                    .replaceAll("\\.", "")
+                    .replace("-", "")
+                    .replace("\\/", "");
+            return cpf;
+        } else if (cpf.length() == 11){
+            return cpf;
+        } else {
+            return "";
         }
-        return false;
     }
 
     public static String formataData(String data){

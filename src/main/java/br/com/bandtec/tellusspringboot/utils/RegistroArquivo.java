@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.lang.reflect.Array;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -63,16 +64,17 @@ public class RegistroArquivo {
         // adicionar função de formatar data
         String dataNascUnf = this.separaCampo(registro);
         String dataNasc = Util.formataData(dataNascUnf);
-        registro = registro.replace(dataNasc+";", "");
+        registro = registro.replace(dataNascUnf+";", "");
 
         String email = this.separaCampo(registro);
         registro = registro.replace(email+";", "");
 
         // adicionar função de validar cpf
         String cpf = this.separaCampo(registro);
-        if (!Util.validaCpf(cpf)){
+        if (Util.validaCpf(cpf).equals("")){
             return "Registro " + nReg + ": CPF do [Responsável] é inválido.";
         }
+
         registro = registro.replace(cpf+";", "");
 
         String senha = this.separaCampo(registro);
@@ -110,8 +112,9 @@ public class RegistroArquivo {
         String nome = this.separaCampo(registro);
         registro = registro.replace(nome+";", "");
 
-        String dataNasc = this.separaCampo(registro);
-        registro = registro.replace(dataNasc+";", "");
+        String dataNascUnf = this.separaCampo(registro);
+        String dataNasc = Util.formataData(dataNascUnf);
+        registro = registro.replace(dataNascUnf+";", "");
 
         String serie = this.separaCampo(registro);
         registro = registro.replace(serie+";", "");
@@ -120,7 +123,7 @@ public class RegistroArquivo {
         registro = registro.replace(turma+";", "");
 
         try {
-            if(!alunoRepo.findAlunoByRa(ra)) {
+            if(!alunoRepo.existsAlunoByRa(ra)) {
                 Aluno novoAluno = new Aluno();
                 novoAluno.setRa(ra);
                 novoAluno.setNome(nome);
@@ -141,6 +144,7 @@ public class RegistroArquivo {
     }
 
     private String criaContrato(Responsavel resp, Aluno aluno, Escola escola, String registro, int nReg){
+        //DecimalFormat
         Double valor = Double.parseDouble(this.separaCampo(registro));
         registro = registro.replace(valor+";", "");
 
@@ -174,65 +178,3 @@ public class RegistroArquivo {
         return registro.substring(0, registro.indexOf(";"));
     }
 }
-
-
-
-
-
-//        registro = entrada.readLine();
-
-
-//        try {
-//            registro = entrada.readLine();
-//
-//            // TODO implementar recursividade no lucar desta iteração (while)
-//            while (registro != null) {
-//                tipoRegistro = registro.substring(0, 2);
-//
-//                if (tipoRegistro.equals("00")) {
-//                    arquivo += "Header";
-//                    arquivo += "Tipo de arquivo: " + registro.substring(2, 12);
-//                    int idEscolaa = Integer.parseInt(registro.substring(12, 14));
-//                    arquivo += "ID Escola: " + idEscolaa;
-//                    arquivo += "Data/hora de geração do arquivo: " + registro.substring(14, 33);
-//                    arquivo += "Versão do layout: " + registro.substring(33, 35);
-//                } else if (tipoRegistro.equals("01")) {
-//                    arquivo += "\nTrailer";
-//                    int qtdRegistro = Integer.parseInt(registro.substring(2, 12));
-//                    if (qtdRegistro == contRegistro) {
-//                        arquivo += "Quantidade de registros gravados compatível com quantidade lida";
-//                    } else {
-//                        arquivo += "Quantidade de registros gravados não confere com quantidade lida";
-//                    }
-//                } else if (tipoRegistro.equals("02")) {
-//                    if (contRegistro == 0) {
-//                        arquivo += "\n%-2s %-45s %-13s %-8s %5s %-8s %-45s\n" + "ID" + "ID ALUNO" + "TIPO DE PAG" + "DATA DE VENCIMENTO" +
-//                                "VALOR DA MENSALIDADE" + "SITUACAO" + "ID DA ESCOLA";
-//
-//                    }
-//
-//                    id = registro.substring(2, 5);
-//                    idAluno = registro.substring(5, 50);
-//                    tipoPag = registro.substring(15, 61);
-//                    dataVencimento = registro.substring(61, 71);
-//                    valorMensalidade = Double.parseDouble(registro.substring(71, 79).replace(',', '.'));
-//                    situacao = registro.substring(79, 87);
-//                    idEscola = registro.substring(87, 132);
-//
-//                    arquivo += "%-2s %-45s %-13s %-8s %f5.2 %-8s %-45s\n" + id + idAluno + tipoPag + dataVencimento +
-//                            valorMensalidade + situacao + idEscola;
-//                    contRegistro++;
-//                } else {
-//                    System.out.println("Tipo de registro inválido");
-//                }
-//
-//                registro = entrada.readLine();
-//            }
-//
-//            entrada.close();
-//        } catch (IOException e) {
-//            System.err.printf("Erro ao ler arquivo: %s.\n", e.getMessage());
-//        }
-
-
-

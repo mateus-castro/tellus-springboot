@@ -1,6 +1,11 @@
 package br.com.bandtec.tellusspringboot.dominio;
 
+import org.hibernate.validator.constraints.br.CPF;
+
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Past;
 
 @Entity
 public class Gerente {
@@ -8,12 +13,23 @@ public class Gerente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @ManyToOne
     private Escola fkEscola;
+
+//    @NotBlank
     private String nome;
+
+//    @Past
     private String dataNasc;
+
+//    @Email
     private String email;
+
+//    @CPF
     private String cpf;
+
+//    @NotBlank
     private String senha;
 
     public Integer getId() {

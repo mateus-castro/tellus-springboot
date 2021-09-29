@@ -8,5 +8,5 @@ import java.util.List;
 public interface AlunoRepository extends JpaRepository<Aluno, Integer> {
 
     List<Aluno> findAll();
-    boolean findAlunoByRa(String ra);
+    boolean existsAlunoByRa(String ra);
 }

@@ -10,6 +10,7 @@ public class Pagamento {
     private Integer id;
     @ManyToOne
     private Contrato fkContrato;
+
     private String tipo;
     private String dataVenc;
     private Double valor;

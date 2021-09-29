@@ -1,20 +1,41 @@
 package br.com.bandtec.tellusspringboot.dominio;
 
-import javax.persistence.*;
+import org.hibernate.validator.constraints.br.CPF;
+import org.springframework.validation.annotation.Validated;
 
+import javax.persistence.*;
+import javax.validation.constraints.*;
+
+@Validated
 @Entity
 public class Responsavel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @NotBlank
     private String nome;
+
+//    @Past
     private String dataNasc;
+
+    @Email
     private String email;
+
+    @CPF
     private String cpf;
+
+    @NotBlank
     private String senha;
+
+    @NotBlank
     private String telefone;
+
+    @Positive
     private Integer score;
+
+    @PositiveOrZero
     private Double salario;
 
     public Integer getId() {
