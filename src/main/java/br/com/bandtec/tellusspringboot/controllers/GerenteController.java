@@ -5,6 +5,8 @@ import br.com.bandtec.tellusspringboot.domains.Gerente;
 import br.com.bandtec.tellusspringboot.domains.Login;
 import br.com.bandtec.tellusspringboot.handlers.GerenteHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/gerente")
+@Api(value = "Question")
 
 public class GerenteController {
 
@@ -36,6 +39,7 @@ public class GerenteController {
     private EscolaRepository escolaRepo;
 
 
+    @ApiOperation(value = "Retorna todos o gerentes referentes a uma escola.")
     @CrossOrigin
     @GetMapping
     public ResponseEntity getGerentesByEscola(@RequestParam("cnpj") String cnpj) {
@@ -69,7 +73,7 @@ public class GerenteController {
     @GetMapping("/login")
     public ResponseEntity getLogin(@RequestBody Login login) {
             if (repositoryGerente.existsByEmailAndSenha(login.getEmail(), login.getSenha())) {
-                return ResponseEntity.status(200).body(repositoryGerente.findByEmailAndSenha(login.getEmail(), login.getSenha()));
+                return ResponseEntity.status(200).body(repositoryGerente.findGerenteByEmailAndSenha(login.getEmail(), login.getSenha()));
             } else {
                 return ResponseEntity.status(204).body("Gerente não encontrado!");
             }

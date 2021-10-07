@@ -9,7 +9,7 @@ import java.util.List;
 public interface GerenteRepository extends JpaRepository<Gerente, Integer> {
     List<Gerente> findGerentesByFkEscola(Escola escola);
 
-    Gerente findByEmailAndSenha(String email, String senha);
+    Gerente findGerenteByEmailAndSenha(String email, String senha);
     Gerente findByCpf(String cpf);
     boolean existsByEmailAndSenha(String email, String senha);
     boolean existsByCpf(String cpf);

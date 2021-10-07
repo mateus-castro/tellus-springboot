@@ -44,27 +44,15 @@ public class ResponsavelController {
         return ResponseEntity.status(404).body("Responsavel com o CPF: " + cpf + "Não foi encontrado");
     }
 
-    // TODO permitir a alteração de qualquer atributo do responsável, e não só o telefone
     @PutMapping
-    public ResponseEntity updateResponsavel(@RequestParam("cpf") String cpf, @RequestParam("telefone") String telefone) {
-        if (repositoryResponsavel.existsByCpf(cpf)) {
-            Responsavel resp = repositoryResponsavel.findResponsavelByCpf(cpf);
-            resp.setTelefone(telefone);
-            repositoryResponsavel.save(resp);
+    public ResponseEntity updateResponsavel(@RequestBody Responsavel newResp) {
+        if (repositoryResponsavel.existsByCpf(newResp.getCpf())) {
+            Responsavel oldResp = repositoryResponsavel.findResponsavelByCpf(newResp.getCpf());
+            repositoryResponsavel.deleteByCpf(oldResp.getCpf());
+            repositoryResponsavel.save(newResp);
             return ResponseEntity.status(200).build();
         }
         return ResponseEntity.status(204).body("Responsável não encontrado.");
-    }
-
-    // TODO tirar o parâmetro boolean por que não faz sentido os gerentes terem informações de outros gerentes
-    @CrossOrigin
-    @GetMapping("/login")
-    public ResponseEntity getLogin(@RequestBody Login login) {
-            if (repositoryResponsavel.existsByEmailAndSenha(login.getEmail(), login.getSenha())) {
-                return ResponseEntity.status(200).body(repositoryResponsavel.findResponsavelByEmailAndSenha(login.getEmail(), login.getSenha()));
-            } else {
-                return ResponseEntity.status(204).body(null);
-            }
     }
 }
 

@@ -23,29 +23,29 @@ class EscolaControllerTest {
     @Autowired
     EscolaController controller;
 
-    @Test
-    void getEscola() {
-        List<Escola> escolaTeste = Arrays.asList(new Escola(), new Escola());
+//    @Test
+//    void getEscola() {
+//        List<Escola> escolaTeste = Arrays.asList(new Escola(), new Escola());
+//
+//        Mockito.when(repositoryEscola.findAll()).thenReturn(escolaTeste);
+//
+//        ResponseEntity<List<Escola>> resposta = controller.getEscola();
+//
+//        assertEquals(200, resposta.getStatusCodeValue());
+//        assertEquals(2, resposta.getBody().size());
+//    }
 
-        Mockito.when(repositoryEscola.findAll()).thenReturn(escolaTeste);
-
-        ResponseEntity<List<Escola>> resposta = controller.getEscola();
-
-        assertEquals(200, resposta.getStatusCodeValue());
-        assertEquals(2, resposta.getBody().size());
-    }
-
-    @Test
-    void getContrato() {
-        Escola escola = new Escola();
-        escola.setCnpj("123");
-
-        Mockito.when(repositoryEscola.existsByCnpj("123")).thenReturn(true);
-        Mockito.when(repositoryEscola.findByCnpj("123")).thenReturn(escola);
-
-        assertEquals(controller.getContrato("123").getStatusCodeValue(), 200);
-        assertEquals(controller.getContrato("321").getStatusCodeValue(), 204);
-    }
+//    @Test
+//    void getContrato() {
+//        Escola escola = new Escola();
+//        escola.setCnpj("123");
+//
+//        Mockito.when(repositoryEscola.existsByCnpj("123")).thenReturn(true);
+//        Mockito.when(repositoryEscola.findByCnpj("123")).thenReturn(escola);
+//
+//        assertEquals(controller.getContrato("123").getStatusCodeValue(), 200);
+//        assertEquals(controller.getContrato("321").getStatusCodeValue(), 204);
+//    }
 
     @Test
     void postEscola() {
