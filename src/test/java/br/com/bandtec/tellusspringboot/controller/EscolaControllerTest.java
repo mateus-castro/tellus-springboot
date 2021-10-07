@@ -1,7 +1,8 @@
 package br.com.bandtec.tellusspringboot.controller;
 
-import br.com.bandtec.tellusspringboot.dominio.Escola;
-import br.com.bandtec.tellusspringboot.repositorio.EscolaRepository;
+import br.com.bandtec.tellusspringboot.controllers.EscolaController;
+import br.com.bandtec.tellusspringboot.domains.Escola;
+import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;

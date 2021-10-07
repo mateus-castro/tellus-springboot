@@ -1,6 +1,6 @@
-package br.com.bandtec.tellusspringboot.repositorio;
+package br.com.bandtec.tellusspringboot.repositories;
 
-import br.com.bandtec.tellusspringboot.dominio.Responsavel;
+import br.com.bandtec.tellusspringboot.domains.Responsavel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

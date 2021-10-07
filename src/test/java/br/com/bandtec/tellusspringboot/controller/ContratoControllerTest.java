@@ -1,9 +1,10 @@
 package br.com.bandtec.tellusspringboot.controller;
 
-import br.com.bandtec.tellusspringboot.dominio.Contrato;
-import br.com.bandtec.tellusspringboot.dominio.Responsavel;
-import br.com.bandtec.tellusspringboot.repositorio.ContratoRepository;
-import br.com.bandtec.tellusspringboot.repositorio.ResponsavelRepository;
+import br.com.bandtec.tellusspringboot.controllers.ContratoController;
+import br.com.bandtec.tellusspringboot.domains.Contrato;
+import br.com.bandtec.tellusspringboot.domains.Responsavel;
+import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
+import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;

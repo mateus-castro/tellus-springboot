@@ -1,15 +1,12 @@
-package br.com.bandtec.tellusspringboot.controller;
+package br.com.bandtec.tellusspringboot.controllers;
 
-import br.com.bandtec.tellusspringboot.dominio.Contrato;
-import br.com.bandtec.tellusspringboot.dominio.Responsavel;
-import br.com.bandtec.tellusspringboot.repositorio.ContratoRepository;
-import br.com.bandtec.tellusspringboot.repositorio.ResponsavelRepository;
+import br.com.bandtec.tellusspringboot.domains.Contrato;
+import br.com.bandtec.tellusspringboot.domains.Responsavel;
+import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
+import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/contrato")
@@ -20,16 +17,6 @@ public class ContratoController {
     @Autowired
     private ResponsavelRepository repositoryResponsavel;
 
-    @GetMapping
-    public ResponseEntity getContrato() {
-        List<Contrato> lista = repositoryContrato.findAll();
-        if (lista.isEmpty()) {
-            return ResponseEntity.status(404).build();
-        } else {
-            return ResponseEntity.status(200).body(lista);
-        }
-    }
-
     @PostMapping
     public ResponseEntity postContrato(@RequestBody Contrato contrato) {
         repositoryContrato.save(contrato);
@@ -37,8 +24,8 @@ public class ContratoController {
     }
 
     @CrossOrigin
-    @GetMapping("/responsavel/{cpf}")
-    public ResponseEntity getContrato(@PathVariable String cpf) {
+    @GetMapping
+    public ResponseEntity getContratosOfResp(@RequestParam("cpf") String cpf) {
         if (repositoryResponsavel.existsByCpf(cpf)) {
             Responsavel responsavel = repositoryResponsavel.findResponsavelByCpf(cpf);
             return ResponseEntity.status(200).body(repositoryContrato.findByFkResponsavel(responsavel));

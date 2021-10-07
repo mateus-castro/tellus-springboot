@@ -1,20 +1,15 @@
-package br.com.bandtec.tellusspringboot.controller;
+package br.com.bandtec.tellusspringboot.controllers;
 
-import br.com.bandtec.tellusspringboot.dominio.Escola;
-import br.com.bandtec.tellusspringboot.dominio.Gerente;
-import br.com.bandtec.tellusspringboot.dominio.Login;
-import br.com.bandtec.tellusspringboot.dominio.Responsavel;
-import br.com.bandtec.tellusspringboot.repositorio.*;
-import br.com.bandtec.tellusspringboot.utils.ListaObjeto;
-import br.com.bandtec.tellusspringboot.utils.RegistroArquivo;
-import br.com.bandtec.tellusspringboot.utils.Requisicao;
+import br.com.bandtec.tellusspringboot.domains.Escola;
+import br.com.bandtec.tellusspringboot.domains.Gerente;
+import br.com.bandtec.tellusspringboot.domains.Login;
+import br.com.bandtec.tellusspringboot.handlers.GerenteHandler;
+import br.com.bandtec.tellusspringboot.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +32,15 @@ public class GerenteController {
     @Autowired
     private ContratoRepository contratoRepo;
 
+    @Autowired
+    private EscolaRepository escolaRepo;
+
 
     @CrossOrigin
     @GetMapping
-    public ResponseEntity getGerente() {
-        List<Gerente> lista = repositoryGerente.findAll();
+    public ResponseEntity getGerentesByEscola(@RequestParam("cnpj") String cnpj) {
+        Escola escola = escolaRepo.findByCnpj(cnpj);
+        List<Gerente> lista = repositoryGerente.findGerentesByFkEscola(escola);
         if (lista.isEmpty()) {
             return ResponseEntity.status(204).build();
         } else {
@@ -63,11 +62,9 @@ public class GerenteController {
             repositoryGerente.deleteByCpf(cpf);
             return ResponseEntity.status(200).body("Gerente deletado com sucesso");
         }
-        return ResponseEntity.status(204).body("Gerente com o cpf: " + cpf + "Não foi encontrado");
+        return ResponseEntity.status(204).body("Gerente com o cpf " + cpf + " não foi encontrado");
     }
 
-
-    // TODO tirar o parâmetro boolean por que não faz sentido os gerentes terem informações de outros gerentes
     @CrossOrigin
     @GetMapping("/login")
     public ResponseEntity getLogin(@RequestBody Login login) {
@@ -80,7 +77,7 @@ public class GerenteController {
 
     @CrossOrigin
     @PostMapping("/csv-download")
-    public ResponseEntity<String> postCsv(@RequestParam("file") MultipartFile file, @RequestParam("cpf") String cpfGerente) throws IOException {
+    public ResponseEntity<String> CadastroMassivo(@RequestParam("file") MultipartFile file, @RequestParam("cpf") String cpfGerente) throws IOException {
         if(!Objects.equals(file.getContentType(), "text/csv")){
             return ResponseEntity.status(400).body("Arquivo enviado não está no formato correto. Envie um arquivo .csv :).");
         }
@@ -88,7 +85,7 @@ public class GerenteController {
         if(repositoryGerente.existsByCpf(cpfGerente)) {
             byte[] fileBytes = file.getBytes();
             String arquivo = new String(fileBytes);
-            ArrayList<String> response = new RegistroArquivo().insereRegistrosDeArquivo(arquivo, repositoryGerente.findByCpf(cpfGerente).getFkEscola(), respRepo, alunoRepo, contratoRepo);
+            ArrayList<String> response = new GerenteHandler().insereRegistrosDeArquivo(arquivo, repositoryGerente.findByCpf(cpfGerente).getFkEscola(), respRepo, alunoRepo, contratoRepo);
             if(response.size() > 0){
                 StringBuilder summary = new StringBuilder();
                 for (String index: response) {

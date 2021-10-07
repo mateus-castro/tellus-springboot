@@ -1,4 +1,4 @@
-package br.com.bandtec.tellusspringboot.dominio;
+package br.com.bandtec.tellusspringboot.domains;
 
 import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.validation.annotation.Validated;

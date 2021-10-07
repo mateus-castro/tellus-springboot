@@ -1,11 +1,6 @@
-package br.com.bandtec.tellusspringboot.dominio;
-
-import org.hibernate.validator.constraints.br.CPF;
+package br.com.bandtec.tellusspringboot.domains;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Past;
 
 @Entity
 public class Gerente {

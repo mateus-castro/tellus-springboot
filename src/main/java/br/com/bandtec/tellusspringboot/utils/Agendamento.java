@@ -1,6 +1,6 @@
 package br.com.bandtec.tellusspringboot.utils;
 
-import br.com.bandtec.tellusspringboot.repositorio.ResponsavelRepository;
+import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

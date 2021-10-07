@@ -1,7 +1,8 @@
 package br.com.bandtec.tellusspringboot.controller;
 
-import br.com.bandtec.tellusspringboot.dominio.Pagamento;
-import br.com.bandtec.tellusspringboot.repositorio.PagamentoRepository;
+import br.com.bandtec.tellusspringboot.controllers.PagamentoController;
+import br.com.bandtec.tellusspringboot.domains.Pagamento;
+import br.com.bandtec.tellusspringboot.repositories.PagamentoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

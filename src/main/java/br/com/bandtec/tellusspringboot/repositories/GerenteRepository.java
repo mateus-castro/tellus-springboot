@@ -1,13 +1,13 @@
-package br.com.bandtec.tellusspringboot.repositorio;
+package br.com.bandtec.tellusspringboot.repositories;
 
-import br.com.bandtec.tellusspringboot.dominio.Escola;
-import br.com.bandtec.tellusspringboot.dominio.Gerente;
+import br.com.bandtec.tellusspringboot.domains.Escola;
+import br.com.bandtec.tellusspringboot.domains.Gerente;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
 public interface GerenteRepository extends JpaRepository<Gerente, Integer> {
-    List<Gerente> findAll();
+    List<Gerente> findGerentesByFkEscola(Escola escola);
 
     Gerente findByEmailAndSenha(String email, String senha);
     Gerente findByCpf(String cpf);

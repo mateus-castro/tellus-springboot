@@ -1,21 +1,13 @@
-package br.com.bandtec.tellusspringboot.controller;
+package br.com.bandtec.tellusspringboot.controllers;
 
-import br.com.bandtec.tellusspringboot.dominio.Escola;
-import br.com.bandtec.tellusspringboot.dominio.Login;
-import br.com.bandtec.tellusspringboot.dominio.Responsavel;
-import br.com.bandtec.tellusspringboot.repositorio.EscolaRepository;
-import br.com.bandtec.tellusspringboot.repositorio.ResponsavelRepository;
-import br.com.bandtec.tellusspringboot.utils.ListaObjeto;
-import br.com.bandtec.tellusspringboot.utils.Requisicao;
+import br.com.bandtec.tellusspringboot.domains.Login;
+import br.com.bandtec.tellusspringboot.domains.Responsavel;
+import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
-
-import static br.com.bandtec.tellusspringboot.TellusApplication.listaReqTratadas;
 
 @RestController
 @RequestMapping("/responsavel")
@@ -35,35 +27,11 @@ public class ResponsavelController {
         }
     }
 
-    public Requisicao lerListaRecursiva(int i, String protocolo) {
-        if (listaReqTratadas.getTamanho() > 0) {
-            if (listaReqTratadas.getElemento(i).getProtocolo().equals(protocolo)) {
-                Requisicao req = listaReqTratadas.getElemento(i);
-                listaReqTratadas.removePeloIndice(i);
-                return req;
-            }
-            lerListaRecursiva(i + 1, protocolo);
-        }
-        return null;
-    }
-
-//    @GetMapping
-//    public ResponseEntity getResponsavelPorProtocolo(@RequestParam("protocolo") String protocolo) {
-//        if (listaReqTratadas.getTamanho() > 0) {
-//            Requisicao requisicao = lerListaRecursiva(0, protocolo);
-//            if (requisicao != null) {
-//                return ResponseEntity.status(200).body(requisicao);
-//            }
-//        }
-//        return ResponseEntity.status(204).body("Nenhuma requisição foi concluída até o momento - " + LocalDateTime.now());
-//    }
-
+    @CrossOrigin
     @PostMapping
     public ResponseEntity postResponsavel(@RequestBody Responsavel responsavel) {
-        String protocolo = UUID.randomUUID().toString();
-        LocalDateTime previsao = LocalDateTime.now().plusSeconds(40);
-        return ResponseEntity.status(200).body("Protocolo correspondente a requisição: " + protocolo +
-                "\nPrevisão " + previsao.toString());
+        repositoryResponsavel.save(responsavel);
+        return ResponseEntity.status(201).build();
     }
 
     @CrossOrigin
@@ -91,7 +59,7 @@ public class ResponsavelController {
     // TODO tirar o parâmetro boolean por que não faz sentido os gerentes terem informações de outros gerentes
     @CrossOrigin
     @GetMapping("/login")
-    public ResponseEntity<Responsavel> getLogin(@RequestBody Login login) {
+    public ResponseEntity getLogin(@RequestBody Login login) {
             if (repositoryResponsavel.existsByEmailAndSenha(login.getEmail(), login.getSenha())) {
                 return ResponseEntity.status(200).body(repositoryResponsavel.findResponsavelByEmailAndSenha(login.getEmail(), login.getSenha()));
             } else {

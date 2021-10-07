@@ -1,12 +1,10 @@
-package br.com.bandtec.tellusspringboot.repositorio;
+package br.com.bandtec.tellusspringboot.repositories;
 
-import br.com.bandtec.tellusspringboot.dominio.Aluno;
+import br.com.bandtec.tellusspringboot.domains.Aluno;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 
 public interface AlunoRepository extends JpaRepository<Aluno, Integer> {
 
-    List<Aluno> findAll();
+    Aluno findAlunoByRa(String ra);
     boolean existsAlunoByRa(String ra);
 }

@@ -1,4 +1,4 @@
-package br.com.bandtec.tellusspringboot.dominio;
+package br.com.bandtec.tellusspringboot.domains;
 
 public class Login {
     private String email;

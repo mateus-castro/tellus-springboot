@@ -1,7 +1,6 @@
 package br.com.bandtec.tellusspringboot.utils;
 
-import br.com.bandtec.tellusspringboot.dominio.Responsavel;
-import br.com.bandtec.tellusspringboot.repositorio.ResponsavelRepository;
+import br.com.bandtec.tellusspringboot.domains.Responsavel;
 
 import java.time.LocalDateTime;
 

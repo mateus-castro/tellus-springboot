@@ -1,18 +1,18 @@
-package br.com.bandtec.tellusspringboot.utils;
+package br.com.bandtec.tellusspringboot.handlers;
 
-import br.com.bandtec.tellusspringboot.dominio.*;
-import br.com.bandtec.tellusspringboot.repositorio.AlunoRepository;
-import br.com.bandtec.tellusspringboot.repositorio.ContratoRepository;
-import br.com.bandtec.tellusspringboot.repositorio.ResponsavelRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import br.com.bandtec.tellusspringboot.domains.*;
+import br.com.bandtec.tellusspringboot.repositories.AlunoRepository;
+import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
+import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
+import br.com.bandtec.tellusspringboot.utils.Util;
 
 import java.io.*;
-import java.lang.reflect.Array;
-import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Stream;
 
-public class RegistroArquivo {
+
+public class GerenteHandler {
 
     private ResponsavelRepository respRepo;
 
@@ -61,7 +61,6 @@ public class RegistroArquivo {
         String nome = this.separaCampo(registro);
         registro = registro.replace(nome+";", "");
 
-        // adicionar função de formatar data
         String dataNascUnf = this.separaCampo(registro);
         String dataNasc = Util.formataData(dataNascUnf);
         registro = registro.replace(dataNascUnf+";", "");
@@ -69,12 +68,11 @@ public class RegistroArquivo {
         String email = this.separaCampo(registro);
         registro = registro.replace(email+";", "");
 
-        // adicionar função de validar cpf
         String cpf = this.separaCampo(registro);
-        if (Util.validaCpf(cpf).equals("")){
+        String formattedCpf = Util.validaCpf(cpf);
+        if (formattedCpf.equals("")){
             return "Registro " + nReg + ": CPF do [Responsável] é inválido.";
         }
-
         registro = registro.replace(cpf+";", "");
 
         String senha = this.separaCampo(registro);
@@ -84,12 +82,12 @@ public class RegistroArquivo {
         registro = registro.replace(telefone+";", "");
 
         try{
-            if(!respRepo.existsByCpf(cpf)){
+            if(!respRepo.existsByCpf(formattedCpf)){
                 Responsavel novoResp = new Responsavel();
                 novoResp.setNome(nome);
                 novoResp.setDataNasc(dataNasc);
                 novoResp.setEmail(email);
-                novoResp.setCpf(cpf);
+                novoResp.setCpf(formattedCpf);
                 novoResp.setSenha(senha);
                 novoResp.setTelefone(telefone);
 
@@ -143,18 +141,19 @@ public class RegistroArquivo {
         }
     }
 
-    private String criaContrato(Responsavel resp, Aluno aluno, Escola escola, String registro, int nReg){
-        //DecimalFormat
+    private String criaContrato(Responsavel resp, Aluno aluno, Escola escola, String registro, int nReg) throws ParseException {
         Double valor = Double.parseDouble(this.separaCampo(registro));
-        registro = registro.replace(valor+";", "");
+        String valorString = this.separaCampo(registro);
+        registro = registro.replace(valorString+";", "");
 
         Integer numParcelas = Integer.parseInt(this.separaCampo(registro));
         registro = registro.replace(numParcelas+";", "");
 
-        String dtFim = this.separaCampo(registro);
-        registro = registro.replace(dtFim+";", "");
+        String dataFimUnf = this.separaCampo(registro);
+        String dataFim = Util.formataData(dataFimUnf);
+        registro = registro.replace(dataFimUnf+";", "");
 
-        String dtInicio = this.separaCampo(registro);
+        String dataInicio = Util.formataData(registro);
 
         try{
             Contrato novoContrato = new Contrato();
@@ -163,8 +162,8 @@ public class RegistroArquivo {
             novoContrato.setFkEscola(escola);
             novoContrato.setValor(valor);
             novoContrato.setNumParcelas(numParcelas);
-            novoContrato.setDataFim(dtFim);
-            novoContrato.setDataInicio(dtInicio);
+            novoContrato.setDataFim(dataFim);
+            novoContrato.setDataInicio(dataInicio);
 
             contRepo.save(novoContrato);
             return "";

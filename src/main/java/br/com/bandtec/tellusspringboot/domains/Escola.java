@@ -1,7 +1,6 @@
-package br.com.bandtec.tellusspringboot.dominio;
+package br.com.bandtec.tellusspringboot.domains;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.hibernate.validator.constraints.br.CNPJ;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

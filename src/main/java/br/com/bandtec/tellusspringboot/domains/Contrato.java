@@ -1,4 +1,4 @@
-package br.com.bandtec.tellusspringboot.dominio;
+package br.com.bandtec.tellusspringboot.domains;
 
 import javax.persistence.*;
 
