@@ -43,16 +43,16 @@ public class EscolaController {
 
     @CrossOrigin
     @GetMapping("/login")
-    public ResponseEntity getLogin(@RequestBody Login login, @RequestParam("type") String type) {
+    public ResponseEntity getLogin(@RequestParam String email, @RequestParam String senha, @RequestParam("type") String type) {
         if(type.equals("resp")){
-            if (respRepo.existsByEmailAndSenha(login.getEmail(), login.getSenha())) {
-                return ResponseEntity.status(200).body(respRepo.findResponsavelByEmailAndSenha(login.getEmail(), login.getSenha()));
+            if (respRepo.existsByEmailAndSenha(email, senha)) {
+                return ResponseEntity.status(200).body(respRepo.findResponsavelByEmailAndSenha(email, senha));
             } else {
                 return ResponseEntity.status(204).body(null);
             }
         } else if(type.equals("ger")){
-            if (gerRepo.existsByEmailAndSenha(login.getEmail(), login.getSenha())) {
-                return ResponseEntity.status(200).body(gerRepo.findGerenteByEmailAndSenha(login.getEmail(), login.getSenha()));
+            if (gerRepo.existsByEmailAndSenha(email, senha)) {
+                return ResponseEntity.status(200).body(gerRepo.findGerenteByEmailAndSenha(email, senha));
             } else {
                 return ResponseEntity.status(204).body(null);
             }
