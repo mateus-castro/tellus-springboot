@@ -8,6 +8,7 @@ import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
 import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
 import br.com.bandtec.tellusspringboot.repositories.GerenteRepository;
 import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,9 @@ public class EscolaController {
 
     @Autowired
     private GerenteRepository gerRepo;
+
+    @Autowired
+    private ContratoRepository contratoRepository;
 
     @CrossOrigin
     @GetMapping
@@ -46,16 +50,21 @@ public class EscolaController {
 
     @CrossOrigin
     @GetMapping("/login")
-    public ResponseEntity getLogin(@RequestBody Login login, @RequestParam("type") String type) {
+    public ResponseEntity getLogin(@RequestParam String email, @RequestParam String senha, @RequestParam("type") String type) {
         if(type.equals("resp")){
-            if (respRepo.existsByEmailAndSenha(login.getEmail(), login.getSenha())) {
-                return ResponseEntity.status(200).body(respRepo.findResponsavelByEmailAndSenha(login.getEmail(), login.getSenha()));
+            if (respRepo.existsByEmailAndSenha(email, senha)) {
+                Responsavel responsavel = respRepo.findResponsavelByEmailAndSenha(email, senha);
+                Escola escolaQuery = contratoRepository.findByFkResponsavel(responsavel).getFkEscola();
+                JSONObject body = new JSONObject();
+                body.put("responsavel", responsavel);
+                body.put("escola", escolaQuery);
+                return ResponseEntity.status(200).body(body.toMap());
             } else {
                 return ResponseEntity.status(204).body(null);
             }
         } else if(type.equals("ger")){
-            if (gerRepo.existsByEmailAndSenha(login.getEmail(), login.getSenha())) {
-                return ResponseEntity.status(200).body(gerRepo.findGerenteByEmailAndSenha(login.getEmail(), login.getSenha()));
+            if (gerRepo.existsByEmailAndSenha(email, senha)) {
+                return ResponseEntity.status(200).body(gerRepo.findGerenteByEmailAndSenha(email, senha));
             } else {
                 return ResponseEntity.status(204).body(null);
             }
