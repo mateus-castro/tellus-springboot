@@ -1,12 +1,16 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
-import br.com.bandtec.tellusspringboot.domains.Login;
+import br.com.bandtec.tellusspringboot.domains.Contrato;
+import br.com.bandtec.tellusspringboot.domains.Escola;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
+import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
+import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
 import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -14,16 +18,33 @@ import java.util.List;
 public class ResponsavelController {
 
     @Autowired
+    private EscolaRepository escolaRepo;
+
+    @Autowired
     private ResponsavelRepository repositoryResponsavel;
+
+    @Autowired
+    private ContratoRepository contRepo;
 
     @CrossOrigin
     @GetMapping
-    public ResponseEntity getResponsavel() {
-        List<Responsavel> lista = repositoryResponsavel.findAll();
-        if (lista.isEmpty()) {
+    public ResponseEntity getAllRespOfEscola(@RequestParam("cnpj") String cnpj){
+        if(escolaRepo.existsByCnpj(cnpj)){
+            Escola escola = escolaRepo.findByCnpj(cnpj);
+            List<Responsavel> listaResp = new ArrayList<>();
+            List<Contrato> listaContrato = contRepo.findAllByFkEscola(escola);
+
+            for ( Contrato contrato : listaContrato ) {
+                Responsavel newResp = contrato.getFkResponsavel();
+                if(listaResp.contains(newResp)) {
+                    listaResp.add(newResp);
+                }
+            }
+
+            return ResponseEntity.status(200).body(listaResp);
+        } else{
+            System.out.println("[getAllRespOfEscola] Escola especificada não encontrada");
             return ResponseEntity.status(204).build();
-        } else {
-            return ResponseEntity.status(200).body(lista);
         }
     }
 
