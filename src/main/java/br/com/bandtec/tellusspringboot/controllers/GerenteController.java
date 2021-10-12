@@ -5,8 +5,7 @@ import br.com.bandtec.tellusspringboot.domains.Gerente;
 import br.com.bandtec.tellusspringboot.domains.Login;
 import br.com.bandtec.tellusspringboot.handlers.GerenteHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,9 +39,23 @@ public class GerenteController {
 
 
     @ApiOperation(value = "Retorna todos o gerentes referentes a uma escola.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Retorna uma lista de gerentes."),
+            @ApiResponse(code = 204, message = "Não existe nenhum gerente.")
+    })
+
     @CrossOrigin
     @GetMapping
-    public ResponseEntity getGerentesByEscola(@RequestParam("cnpj") String cnpj) {
+    public ResponseEntity getGerentesByEscola(
+            @ApiParam(
+                    name =  "cnpj",
+                    type = "String",
+                    value = "CNPJ da escola",
+                    example = "60.829.806/0001-19",
+                    required = true
+            )
+            @RequestParam("cnpj") String cnpj
+    ) {
         Escola escola = escolaRepo.findByCnpj(cnpj);
         List<Gerente> lista = repositoryGerente.findGerentesByFkEscola(escola);
         if (lista.isEmpty()) {
@@ -52,6 +65,7 @@ public class GerenteController {
         }
     }
 
+    @ApiOperation(value = "Insere um gerente no banco.")
     @CrossOrigin
     @PostMapping
     public ResponseEntity postGerente(@RequestBody Gerente gerente) {
@@ -59,6 +73,7 @@ public class GerenteController {
         return ResponseEntity.status(201).build();
     }
 
+    @ApiOperation(value = "Deleta um gerente do banco.")
     @CrossOrigin
     @DeleteMapping
     public ResponseEntity deleteGerente(@RequestParam("cpf") String cpf) {
@@ -69,16 +84,7 @@ public class GerenteController {
         return ResponseEntity.status(204).body("Gerente com o cpf " + cpf + " não foi encontrado");
     }
 
-    @CrossOrigin
-    @GetMapping("/login")
-    public ResponseEntity getLogin(@RequestBody Login login) {
-            if (repositoryGerente.existsByEmailAndSenha(login.getEmail(), login.getSenha())) {
-                return ResponseEntity.status(200).body(repositoryGerente.findGerenteByEmailAndSenha(login.getEmail(), login.getSenha()));
-            } else {
-                return ResponseEntity.status(204).body("Gerente não encontrado!");
-            }
-    }
-
+    @ApiOperation(value = "Faz um cadastro massivo via .csv.")
     @CrossOrigin
     @PostMapping("/csv-download")
     public ResponseEntity<String> CadastroMassivo(@RequestParam("file") MultipartFile file, @RequestParam("cpf") String cpfGerente) throws IOException {

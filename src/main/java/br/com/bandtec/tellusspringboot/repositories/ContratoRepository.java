@@ -1,6 +1,7 @@
 package br.com.bandtec.tellusspringboot.repositories;
 
 import br.com.bandtec.tellusspringboot.domains.Contrato;
+import br.com.bandtec.tellusspringboot.domains.Escola;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,6 +11,7 @@ public interface ContratoRepository extends JpaRepository<Contrato, Integer> {
     List<Contrato> findAll();
 
     Contrato findByFkResponsavel(Responsavel responsavel);
+    List<Contrato> findAllByFkEscola(Escola escola);
 
     boolean existsByFkResponsavel(int idResponsavel);
 }
