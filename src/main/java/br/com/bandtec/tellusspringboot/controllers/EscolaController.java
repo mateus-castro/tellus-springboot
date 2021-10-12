@@ -1,8 +1,6 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
-import br.com.bandtec.tellusspringboot.domains.Contrato;
 import br.com.bandtec.tellusspringboot.domains.Escola;
-import br.com.bandtec.tellusspringboot.domains.Login;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
 import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
 import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;

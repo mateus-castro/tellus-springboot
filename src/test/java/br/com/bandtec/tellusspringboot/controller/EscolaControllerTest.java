@@ -20,8 +20,8 @@ class EscolaControllerTest {
     @MockBean
     EscolaRepository repositoryEscola;
 
-    @Autowired
-    EscolaController controller;
+//    @Autowired
+//    EscolaController controller;
 
 //    @Test
 //    void getEscola() {
@@ -46,13 +46,13 @@ class EscolaControllerTest {
 //        assertEquals(controller.getContrato("123").getStatusCodeValue(), 200);
 //        assertEquals(controller.getContrato("321").getStatusCodeValue(), 204);
 //    }
-
-    @Test
-    void postEscola() {
-        Escola escola = new Escola();
-        escola.setCnpj("123");
-        escola.setRazaoSocial("Escolinha");
-
-        assertEquals(controller.postEscola(escola).getStatusCodeValue(), 201);
-    }
+//
+//    @Test
+//    void postEscola() {
+//        Escola escola = new Escola();
+//        escola.setCnpj("123");
+//        escola.setRazaoSocial("Escolinha");
+//
+//        assertEquals(controller.postEscola(escola).getStatusCodeValue(), 201);
+//    }
 }

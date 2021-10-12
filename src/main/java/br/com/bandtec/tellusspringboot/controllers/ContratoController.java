@@ -8,14 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/contrato")
 public class ContratoController {
+
     @Autowired
     private ContratoRepository repositoryContrato;
 
     @Autowired
-    private ResponsavelRepository repositoryResponsavel;
+    private ResponsavelRepository respRepo;
 
     @PostMapping
     public ResponseEntity postContrato(@RequestBody Contrato contrato) {
@@ -26,8 +29,8 @@ public class ContratoController {
     @CrossOrigin
     @GetMapping
     public ResponseEntity getContratosOfResp(@RequestParam("cpf") String cpf) {
-        if (repositoryResponsavel.existsByCpf(cpf)) {
-            Responsavel responsavel = repositoryResponsavel.findResponsavelByCpf(cpf);
+        if (respRepo.existsByCpf(cpf)) {
+            Responsavel responsavel = respRepo.findResponsavelByCpf(cpf);
             return ResponseEntity.status(200).body(repositoryContrato.findByFkResponsavel(responsavel));
         } else {
             return ResponseEntity.status(204).build();
