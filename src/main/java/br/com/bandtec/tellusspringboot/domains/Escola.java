@@ -25,6 +25,8 @@ public class Escola {
     @NotBlank
     private String plano;
 
+    private Double juros;
+
 //    @CNPJ
     private String cnpj;
 
@@ -58,6 +60,14 @@ public class Escola {
 
     public void setPlano(String plano) {
         this.plano = plano;
+    }
+
+    public Double getJuros() {
+        return juros;
+    }
+
+    public void setJuros(Double juros) {
+        this.juros = juros;
     }
 
     public String getCnpj() {

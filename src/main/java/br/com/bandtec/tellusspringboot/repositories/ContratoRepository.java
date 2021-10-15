@@ -10,7 +10,7 @@ import java.util.List;
 public interface ContratoRepository extends JpaRepository<Contrato, Integer> {
     List<Contrato> findAll();
 
-    Contrato findByFkResponsavel(Responsavel responsavel);
+    Contrato findFirstByFkResponsavel(Responsavel responsavel);
     List<Contrato> findAllByFkEscola(Escola escola);
 
     boolean existsByFkResponsavel(int idResponsavel);

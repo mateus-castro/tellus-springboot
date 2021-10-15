@@ -38,6 +38,8 @@ public class Responsavel {
     @PositiveOrZero
     private Double salario;
 
+    private String imagem;
+
     public Integer getId() {
         return id;
     }
@@ -108,5 +110,13 @@ public class Responsavel {
 
     public void setSalario(Double salario) {
         this.salario = salario;
+    }
+
+    public String getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(String imagem) {
+        this.imagem = imagem;
     }
 }

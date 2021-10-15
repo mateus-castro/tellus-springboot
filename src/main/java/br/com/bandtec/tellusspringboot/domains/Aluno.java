@@ -15,6 +15,7 @@ public class Aluno {
     private String dataNasc;
     private String serie;
     private String turma;
+    private String imagem;
 
     public Integer getId() {
         return id;
@@ -62,5 +63,13 @@ public class Aluno {
 
     public void setRa(String ra) {
         this.ra = ra;
+    }
+
+    public String getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(String imagem) {
+        this.imagem = imagem;
     }
 }

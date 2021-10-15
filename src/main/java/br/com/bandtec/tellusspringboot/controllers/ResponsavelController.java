@@ -6,6 +6,7 @@ import br.com.bandtec.tellusspringboot.domains.Responsavel;
 import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
 import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
 import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/responsavel")
+@Api(value = "Question")
+
 public class ResponsavelController {
 
     @Autowired
@@ -36,7 +39,7 @@ public class ResponsavelController {
 
             for ( Contrato contrato : listaContrato ) {
                 Responsavel newResp = contrato.getFkResponsavel();
-                if(listaResp.contains(newResp)) {
+                if(!listaResp.contains(newResp)) {
                     listaResp.add(newResp);
                 }
             }

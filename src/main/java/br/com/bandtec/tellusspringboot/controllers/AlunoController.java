@@ -1,6 +1,7 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
 import br.com.bandtec.tellusspringboot.domains.Aluno;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/aluno")
+@Api(value = "Question")
+
 public class AlunoController {
 
     @Autowired

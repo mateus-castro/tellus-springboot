@@ -5,6 +5,7 @@ import br.com.bandtec.tellusspringboot.domains.Gerente;
 import br.com.bandtec.tellusspringboot.domains.Login;
 import br.com.bandtec.tellusspringboot.handlers.GerenteHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
+import br.com.bandtec.tellusspringboot.utils.Util;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,6 @@ public class GerenteController {
             @ApiResponse(code = 200, message = "Retorna uma lista de gerentes."),
             @ApiResponse(code = 204, message = "Não existe nenhum gerente.")
     })
-
     @CrossOrigin
     @GetMapping
     public ResponseEntity getGerentesByEscola(
@@ -66,28 +66,74 @@ public class GerenteController {
     }
 
     @ApiOperation(value = "Insere um gerente no banco.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Insere o gerente no banco e não retorna nada."),
+            @ApiResponse(code = 204, message = "Não insere gerente no banco e retorna mensagem de erro."),
+            @ApiResponse(code = 400, message = "Requisição inválida")
+    })
     @CrossOrigin
     @PostMapping
     public ResponseEntity postGerente(@RequestBody Gerente gerente) {
-        repositoryGerente.save(gerente);
-        return ResponseEntity.status(201).build();
+        String valCpf = Util.validaCpf(gerente.getCpf());
+        if(!valCpf.equals("")) {
+            if (repositoryGerente.existsByCpf(valCpf)) {
+                System.out.println("[postGerente] Gerente já é cadastrado");
+                return ResponseEntity.status(409).body("Gerente já foi cadastrado");
+            } else {
+                repositoryGerente.save(gerente);
+                return ResponseEntity.status(201).build();
+            }
+        } else {
+            System.out.println("[postGerente] Parâmetro inválido");
+            return ResponseEntity.status(400).build();
+        }
     }
 
     @ApiOperation(value = "Deleta um gerente do banco.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Deleta o gerente."),
+            @ApiResponse(code = 204, message = "Não insere gerente no banco e retorna mensagem de erro.")
+    })
     @CrossOrigin
     @DeleteMapping
-    public ResponseEntity deleteGerente(@RequestParam("cpf") String cpf) {
+    public ResponseEntity deleteGerente(
+            @ApiParam(
+                    name =  "cpf",
+                    type = "String",
+                    value = "CPF do Gerente",
+                    example = "515.973.188-17",
+                    required = true
+            )
+            @RequestParam("cpf") String cpf
+    ) {
         if (repositoryGerente.existsByCpf(cpf)) {
             repositoryGerente.deleteByCpf(cpf);
             return ResponseEntity.status(200).body("Gerente deletado com sucesso");
         }
-        return ResponseEntity.status(204).body("Gerente com o cpf " + cpf + " não foi encontrado");
+        System.out.println("[deleteGerente] Gerente com o cpf " + cpf + " não foi encontrado");
+        return ResponseEntity.status(204).build();
     }
 
     @ApiOperation(value = "Faz um cadastro massivo via .csv.")
     @CrossOrigin
     @PostMapping("/csv-download")
-    public ResponseEntity<String> CadastroMassivo(@RequestParam("file") MultipartFile file, @RequestParam("cpf") String cpfGerente) throws IOException {
+    public ResponseEntity<String> CadastroMassivo(
+            @ApiParam(
+                    name =  "file",
+                    type = "MultipartFile",
+                    value = "Arquivo .csv que contém os dados a serem inseridos",
+                    example = "teste.csv",
+                    required = true
+            )
+            @RequestParam("file") MultipartFile file,
+            @ApiParam(
+                    name =  "cpf",
+                    type = "String",
+                    value = "CPF do Gerente",
+                    example = "515.973.188-17",
+                    required = true
+            )
+            @RequestParam("cpf") String cpfGerente) throws IOException {
         if(!Objects.equals(file.getContentType(), "text/csv")){
             return ResponseEntity.status(400).body("Arquivo enviado não está no formato correto. Envie um arquivo .csv :).");
         }

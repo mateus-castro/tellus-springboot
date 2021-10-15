@@ -22,6 +22,8 @@ public class Contrato {
     private String dataFim;
     private String dataInicio;
 
+    private String situacao;
+
     public Integer getId() {
         return id;
     }
@@ -84,5 +86,13 @@ public class Contrato {
 
     public void setDataInicio(String dataInicio) {
         this.dataInicio = dataInicio;
+    }
+
+    public String getSituacao() {
+        return situacao;
+    }
+
+    public void setSituacao(String situacao) {
+        this.situacao = situacao;
     }
 }

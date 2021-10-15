@@ -6,6 +6,7 @@ import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
 import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
 import br.com.bandtec.tellusspringboot.repositories.GerenteRepository;
 import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
+import io.swagger.annotations.Api;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/escola")
+@Api(value = "Question")
 
 public class EscolaController {
 
@@ -52,7 +54,7 @@ public class EscolaController {
         if(type.equals("resp")){
             if (respRepo.existsByEmailAndSenha(email, senha)) {
                 Responsavel responsavel = respRepo.findResponsavelByEmailAndSenha(email, senha);
-                Escola escolaQuery = contratoRepository.findByFkResponsavel(responsavel).getFkEscola();
+                Escola escolaQuery = contratoRepository.findFirstByFkResponsavel(responsavel).getFkEscola();
                 JSONObject body = new JSONObject();
                 body.put("responsavel", responsavel);
                 body.put("escola", escolaQuery);
