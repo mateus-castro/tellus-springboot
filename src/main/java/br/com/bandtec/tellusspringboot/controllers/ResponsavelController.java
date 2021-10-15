@@ -1,5 +1,6 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
+import br.com.bandtec.tellusspringboot.domains.Aluno;
 import br.com.bandtec.tellusspringboot.domains.Contrato;
 import br.com.bandtec.tellusspringboot.domains.Escola;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
@@ -49,6 +50,30 @@ public class ResponsavelController {
             System.out.println("[getAllRespOfEscola] Escola especificada não encontrada");
             return ResponseEntity.status(204).build();
         }
+    }
+
+    @CrossOrigin
+    @GetMapping("/alunos")
+    public ResponseEntity getDependentesPorResp(@RequestParam("cpf") String cpf){
+        if(repositoryResponsavel.existsByCpf(cpf)){
+            List<Contrato> contratoList = contRepo.findAllByFkResponsavel(repositoryResponsavel.findResponsavelByCpf(cpf));
+            List<Aluno> alunoList = new ArrayList<Aluno>();
+            for ( Contrato contrato : contratoList ) {
+                alunoList.add(contrato.getFkAluno());
+            }
+            return ResponseEntity.status(200).body(alunoList);
+        }
+        return ResponseEntity.status(200).build();
+    }
+
+    @CrossOrigin
+    @GetMapping("/contratos")
+    public ResponseEntity getValorTotalDeContratoPago(@RequestParam("cpf") String cpf){
+        if(repositoryResponsavel.existsByCpf(cpf)){
+            List<Contrato> contratoList = contRepo.findAllByFkResponsavel(repositoryResponsavel.findResponsavelByCpf(cpf));
+//            return ResponseEntity.status(200).body(alunoList);
+        }
+        return ResponseEntity.status(200).build();
     }
 
     @CrossOrigin

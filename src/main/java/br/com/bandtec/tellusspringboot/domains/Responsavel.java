@@ -23,7 +23,7 @@ public class Responsavel {
     @Email
     private String email;
 
-    @CPF
+//    @CPF
     private String cpf;
 
     @NotBlank

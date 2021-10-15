@@ -27,4 +27,17 @@ public class Util {
             return ano + "-" + mes + "-" + dia;
         }
     }
+
+    public static String converteSituacao(String sit){
+        switch(sit){
+            case "1":
+                return "novo";
+            case "2":
+                return "encerrado";
+            case "3":
+                return "renovado";
+            default:
+                return "";
+        }
+    }
 }

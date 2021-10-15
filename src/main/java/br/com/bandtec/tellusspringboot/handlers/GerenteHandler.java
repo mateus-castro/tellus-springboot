@@ -29,9 +29,7 @@ public class GerenteHandler {
         // Confirma se o arquivo tem a formataçao correta
         if (cont == 0){
             if(!linha
-                    .equals("NOME_PAI;DATA_NASC_PAI;EMAIL_PAI;CPF_PAI;SENHA_PAI;TELEFONE_PAI;" +
-                            "RA;NOME_ALUNO;DATA_NASC_ALUNO;SERIE_ALUNO;TURMA_ALUNO;" +
-                            "VALOR;NUM_PARCELAS;DATA_FIM;DATA_INICIO")) {
+                    .equals("NOME_PAI;DATA_NASC_PAI;EMAIL_PAI;CPF_PAI;SENHA_PAI;TELEFONE_PAI;RA;NOME_ALUNO;DATA_NASC_ALUNO;SERIE_ALUNO;TURMA_ALUNO;VALOR;NUM_PARCELAS;DATA_INICIO;DATA_FIM;SITUACAO")) {
                 messageList.add("Arquivo com a formatação errada.");
                 return messageList;
             }
@@ -59,27 +57,27 @@ public class GerenteHandler {
 
     private String insereRegistro(String registro, Escola escola, int nReg){
         String nome = this.separaCampo(registro);
-        registro = registro.replace(nome+";", "");
+        registro = registro.replaceFirst(nome+";", "");
 
         String dataNascUnf = this.separaCampo(registro);
         String dataNasc = Util.formataData(dataNascUnf);
-        registro = registro.replace(dataNascUnf+";", "");
+        registro = registro.replaceFirst(dataNascUnf+";", "");
 
         String email = this.separaCampo(registro);
-        registro = registro.replace(email+";", "");
+        registro = registro.replaceFirst(email+";", "");
 
         String cpf = this.separaCampo(registro);
         String formattedCpf = Util.validaCpf(cpf);
         if (formattedCpf.equals("")){
             return "Registro " + nReg + ": CPF do [Responsável] é inválido.";
         }
-        registro = registro.replace(cpf+";", "");
+        registro = registro.replaceFirst(cpf+";", "");
 
         String senha = this.separaCampo(registro);
-        registro = registro.replace(senha+";", "");
+        registro = registro.replaceFirst(senha+";", "");
 
         String telefone = this.separaCampo(registro);
-        registro = registro.replace(telefone+";", "");
+        registro = registro.replaceFirst(telefone+";", "");
 
         try{
             if(!respRepo.existsByCpf(formattedCpf)){
@@ -105,20 +103,20 @@ public class GerenteHandler {
     private String verificaAluno(Responsavel resp, Escola escola, String registro, int nReg){
         // Separando informações do aluno
         String ra = this.separaCampo(registro);
-        registro = registro.replace(ra+";", "");
+        registro = registro.replaceFirst(ra+";", "");
 
         String nome = this.separaCampo(registro);
-        registro = registro.replace(nome+";", "");
+        registro = registro.replaceFirst(nome+";", "");
 
         String dataNascUnf = this.separaCampo(registro);
         String dataNasc = Util.formataData(dataNascUnf);
-        registro = registro.replace(dataNascUnf+";", "");
+        registro = registro.replaceFirst(dataNascUnf+";", "");
 
         String serie = this.separaCampo(registro);
-        registro = registro.replace(serie+";", "");
+        registro = registro.replaceFirst(serie+";", "");
 
         String turma = this.separaCampo(registro);
-        registro = registro.replace(turma+";", "");
+        registro = registro.replaceFirst(turma+";", "");
 
         try {
             if(!alunoRepo.existsAlunoByRa(ra)) {
@@ -142,18 +140,22 @@ public class GerenteHandler {
     }
 
     private String criaContrato(Responsavel resp, Aluno aluno, Escola escola, String registro, int nReg) throws ParseException {
-        Double valor = Double.parseDouble(this.separaCampo(registro));
         String valorString = this.separaCampo(registro);
-        registro = registro.replace(valorString+";", "");
+        Double valor = Double.parseDouble(valorString.replace(",", "."));
+        registro = registro.replaceFirst(valorString+";", "");
 
         Integer numParcelas = Integer.parseInt(this.separaCampo(registro));
-        registro = registro.replace(numParcelas+";", "");
+        registro = registro.replaceFirst(numParcelas+";", "");
+
+        String dataInicioUnf = this.separaCampo(registro);
+        String dataInicio = Util.formataData(dataInicioUnf);
+        registro = registro.replaceFirst(dataInicioUnf+";", "");
 
         String dataFimUnf = this.separaCampo(registro);
         String dataFim = Util.formataData(dataFimUnf);
-        registro = registro.replace(dataFimUnf+";", "");
+        registro = registro.replaceFirst(dataFimUnf+";", "");
 
-        String dataInicio = Util.formataData(registro);
+        String situacao = Util.converteSituacao(registro);
 
         try{
             Contrato novoContrato = new Contrato();
@@ -164,6 +166,7 @@ public class GerenteHandler {
             novoContrato.setNumParcelas(numParcelas);
             novoContrato.setDataFim(dataFim);
             novoContrato.setDataInicio(dataInicio);
+            novoContrato.setSituacao(situacao);
 
             contRepo.save(novoContrato);
             return "";

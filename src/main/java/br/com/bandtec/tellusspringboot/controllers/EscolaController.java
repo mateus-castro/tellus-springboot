@@ -69,7 +69,7 @@ public class EscolaController {
                 return ResponseEntity.status(204).body(null);
             }
         } else {
-            return ResponseEntity.status(404).body("Parâmetro da requisição errado");
+            return ResponseEntity.status(404).body("[getLogin] Parâmetro de requisição inválido");
         }
     }
 }
