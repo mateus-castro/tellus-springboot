@@ -134,7 +134,7 @@ public class GerenteController {
                     required = true
             )
             @RequestParam("cpf") String cpfGerente) throws IOException {
-        if(!Objects.equals(file.getContentType(), "text/csv")){
+        if(!Objects.equals(file.getContentType(), "text/csv") && !Objects.equals(file.getContentType(), "application/vnd.ms-excel")){
             return ResponseEntity.status(400).body("Arquivo enviado não está no formato correto. Envie um arquivo .csv :).");
         }
 
