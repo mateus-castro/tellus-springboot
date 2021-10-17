@@ -21,20 +21,30 @@ public class PagamentoController {
     @Autowired
     private PagamentoRepository repositoryPagamento;
 
-    @ApiOperation(value = "Retorna todos o gerentes referentes a uma escola.")
+    @ApiOperation(value = "Insere um pagamento.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Retorna uma lista de gerentes."),
-            @ApiResponse(code = 204, message = "Não existe nenhum gerente.")
+            @ApiResponse(code = 201, message = "Pagamento inserido no banco com sucesso."),
+            @ApiResponse(code = 400, message = "Requisição falhou.")
     })
     @PostMapping
     public ResponseEntity postPagamento(@RequestBody Pagamento pagamento) {
-        repositoryPagamento.save(pagamento);
-        return ResponseEntity.status(201).build();
+        try{
+            repositoryPagamento.save(pagamento);
+            return ResponseEntity.status(201).build();
+        } catch(Error e){
+            System.out.println("[postPagamento] Erro de requisição " + e);
+            return ResponseEntity.status(400).build();
+        }
     }
 
+    @ApiOperation(value = "Retorna todos os pagamentos de um contrato.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Retorna uma lista de pagamentos."),
+            @ApiResponse(code = 204, message = "Não existe nenhum gerente.")
+    })
     @GetMapping
     public ResponseEntity getPagamentoByContrato(@RequestBody Contrato contrato) {
-        List<Pagamento> pagamentos = repositoryPagamento.findPagamentosByFkContrato(contrato);
+        List<Pagamento> pagamentos = repositoryPagamento.findAllByFkContrato(contrato);
         return ResponseEntity.status(200).body(pagamentos);
     }
 

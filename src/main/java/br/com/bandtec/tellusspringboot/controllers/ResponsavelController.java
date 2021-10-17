@@ -1,12 +1,7 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
-import br.com.bandtec.tellusspringboot.domains.Aluno;
-import br.com.bandtec.tellusspringboot.domains.Contrato;
-import br.com.bandtec.tellusspringboot.domains.Escola;
-import br.com.bandtec.tellusspringboot.domains.Responsavel;
-import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
-import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
-import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
+import br.com.bandtec.tellusspringboot.domains.*;
+import br.com.bandtec.tellusspringboot.repositories.*;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +20,16 @@ public class ResponsavelController {
     private EscolaRepository escolaRepo;
 
     @Autowired
-    private ResponsavelRepository repositoryResponsavel;
+    private AlunoRepository alunoRepo;
+
+    @Autowired
+    private ResponsavelRepository respRepo;
 
     @Autowired
     private ContratoRepository contRepo;
+    
+    @Autowired
+    private PagamentoRepository pagRepo;
 
     @CrossOrigin
     @GetMapping
@@ -55,39 +56,48 @@ public class ResponsavelController {
     @CrossOrigin
     @GetMapping("/alunos")
     public ResponseEntity getDependentesPorResp(@RequestParam("cpf") String cpf){
-        if(repositoryResponsavel.existsByCpf(cpf)){
-            List<Contrato> contratoList = contRepo.findAllByFkResponsavel(repositoryResponsavel.findResponsavelByCpf(cpf));
+        if(respRepo.existsByCpf(cpf)){
+            List<Contrato> contratoList = contRepo.findAllByFkResponsavel(respRepo.findResponsavelByCpf(cpf));
             List<Aluno> alunoList = new ArrayList<Aluno>();
             for ( Contrato contrato : contratoList ) {
                 alunoList.add(contrato.getFkAluno());
             }
             return ResponseEntity.status(200).body(alunoList);
         }
-        return ResponseEntity.status(200).build();
+        return ResponseEntity.status(404).body("[getDEpendentesPorResp]");
     }
 
+    // gráfico de valor pago do contrato de responsável
     @CrossOrigin
     @GetMapping("/contratos")
-    public ResponseEntity getValorTotalDeContratoPago(@RequestParam("cpf") String cpf){
-        if(repositoryResponsavel.existsByCpf(cpf)){
-            List<Contrato> contratoList = contRepo.findAllByFkResponsavel(repositoryResponsavel.findResponsavelByCpf(cpf));
-//            return ResponseEntity.status(200).body(alunoList);
+    public ResponseEntity getValorTotalDeContratoPago(@RequestParam("cpf") String cpf,
+                                                      @RequestParam("nomeAluno") String nomeAluno){
+        if(respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)){
+            Contrato contrato = contRepo.findContratoByFkAluno(alunoRepo.findAlunoByNome(nomeAluno));
+            List<Pagamento> listaPagtos = pagRepo.findAllByFkContrato(contrato);
+            Double res = 0.0;
+            for ( Pagamento pagto : listaPagtos ) {
+                res += pagto.getValor();
+            }
+            res = ( 100 * res ) / contrato.getValor();
+            return ResponseEntity.status(200).body(res);
         }
-        return ResponseEntity.status(200).build();
+        System.out.println("[getValorTotalDeContratoPago] Parâmetros inválidos");
+        return ResponseEntity.status(404).build();
     }
 
     @CrossOrigin
     @PostMapping
     public ResponseEntity postResponsavel(@RequestBody Responsavel responsavel) {
-        repositoryResponsavel.save(responsavel);
+        respRepo.save(responsavel);
         return ResponseEntity.status(201).build();
     }
 
     @CrossOrigin
     @DeleteMapping
     public ResponseEntity deleteResponsavel(@RequestParam("cpf") String cpf) {
-        if (repositoryResponsavel.existsByCpf(cpf)) {
-            repositoryResponsavel.deleteByCpf(cpf);
+        if (respRepo.existsByCpf(cpf)) {
+            respRepo.deleteByCpf(cpf);
             return ResponseEntity.status(200).body("Responsavel deletado com sucesso");
         }
         return ResponseEntity.status(404).body("Responsavel com o CPF: " + cpf + "Não foi encontrado");
@@ -95,10 +105,10 @@ public class ResponsavelController {
 
     @PutMapping
     public ResponseEntity updateResponsavel(@RequestBody Responsavel newResp) {
-        if (repositoryResponsavel.existsByCpf(newResp.getCpf())) {
-            Responsavel oldResp = repositoryResponsavel.findResponsavelByCpf(newResp.getCpf());
-            repositoryResponsavel.deleteByCpf(oldResp.getCpf());
-            repositoryResponsavel.save(newResp);
+        if (respRepo.existsByCpf(newResp.getCpf())) {
+            Responsavel oldResp = respRepo.findResponsavelByCpf(newResp.getCpf());
+            respRepo.deleteByCpf(oldResp.getCpf());
+            respRepo.save(newResp);
             return ResponseEntity.status(200).build();
         }
         return ResponseEntity.status(204).body("Responsável não encontrado.");
