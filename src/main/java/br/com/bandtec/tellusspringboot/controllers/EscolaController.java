@@ -1,6 +1,7 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
 import br.com.bandtec.tellusspringboot.domains.Escola;
+import br.com.bandtec.tellusspringboot.domains.Gerente;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
 import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
 import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
@@ -64,12 +65,27 @@ public class EscolaController {
             }
         } else if(type.equals("ger")){
             if (gerRepo.existsByEmailAndSenha(email, senha)) {
-                return ResponseEntity.status(200).body(gerRepo.findGerenteByEmailAndSenha(email, senha));
+                Gerente gerente = gerRepo.findGerenteByEmailAndSenha(email, senha);
+                JSONObject body = new JSONObject();
+                JSONObject newGerente = new JSONObject();
+
+                newGerente.put("id", gerente.getId());
+                newGerente.put("nome", gerente.getNome());
+                newGerente.put("dataNasc", gerente.getDataNasc());
+                newGerente.put("email", gerente.getEmail());
+                newGerente.put("cpf", gerente.getCpf());
+                newGerente.put("senha", gerente.getSenha());
+                newGerente.put("imagem", gerente.getImagem());
+
+                body.put("escola", gerente.getFkEscola());
+                body.put("gerente", newGerente);
+                return ResponseEntity.status(200).body(body.toMap());
             } else {
                 return ResponseEntity.status(204).body(null);
             }
         } else {
-            return ResponseEntity.status(404).body("[getLogin] Parâmetro de requisição inválido");
+            System.out.println("[getLogin] Parâmetro de requisição inválido");
+            return ResponseEntity.status(404).build();
         }
     }
 }
