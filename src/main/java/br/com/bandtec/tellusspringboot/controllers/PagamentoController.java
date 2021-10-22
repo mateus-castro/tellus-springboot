@@ -1,7 +1,10 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
+import br.com.bandtec.tellusspringboot.domains.Aluno;
 import br.com.bandtec.tellusspringboot.domains.Contrato;
 import br.com.bandtec.tellusspringboot.domains.Pagamento;
+import br.com.bandtec.tellusspringboot.repositories.AlunoRepository;
+import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
 import br.com.bandtec.tellusspringboot.repositories.PagamentoRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,7 +22,13 @@ import java.util.List;
 
 public class PagamentoController {
     @Autowired
-    private PagamentoRepository repositoryPagamento;
+    private PagamentoRepository pagRepo;
+
+    @Autowired
+    private ContratoRepository contRepo;
+
+    @Autowired
+    private AlunoRepository alunoRepo;
 
     @ApiOperation(value = "Insere um pagamento.")
     @ApiResponses(value = {
@@ -29,7 +38,7 @@ public class PagamentoController {
     @PostMapping
     public ResponseEntity postPagamento(@RequestBody Pagamento pagamento) {
         try{
-            repositoryPagamento.save(pagamento);
+            pagRepo.save(pagamento);
             return ResponseEntity.status(201).build();
         } catch(Error e){
             System.out.println("[postPagamento] Erro de requisição " + e);
@@ -43,9 +52,17 @@ public class PagamentoController {
             @ApiResponse(code = 204, message = "Não existe nenhum gerente.")
     })
     @GetMapping
-    public ResponseEntity getPagamentoByContrato(@RequestBody Contrato contrato) {
-        List<Pagamento> pagamentos = repositoryPagamento.findAllByFkContrato(contrato);
-        return ResponseEntity.status(200).body(pagamentos);
+    public ResponseEntity getPagamentoByContrato(@RequestParam("ra") String raAluno) {
+        try {
+            Aluno aluno = alunoRepo.findAlunoByRa(raAluno);
+            Contrato contrato = contRepo.findContratoByFkAluno(aluno);
+            List<Pagamento> pagamentos = pagRepo.findAllByFkContrato(contrato);
+            return ResponseEntity.status(200).body(pagamentos);
+        } catch(Error e){
+            System.out.println(e);
+            return ResponseEntity.status(400).build();
+        }
+
     }
 
 }

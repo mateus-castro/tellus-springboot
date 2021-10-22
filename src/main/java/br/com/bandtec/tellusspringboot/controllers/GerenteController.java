@@ -158,4 +158,14 @@ public class GerenteController {
 
     }
 
+    @CrossOrigin
+    @GetMapping("/pesquisa")
+    public ResponseEntity pesquisaHashTable(@RequestParam("value") String value, @RequestParam("cnpj") String cnpj) throws IOException {
+        if(escolaRepo.existsByCnpj(cnpj)){
+            List<String> list = new GerenteHandler().pesquisaHash(value, 0, cnpj, contratoRepo, escolaRepo);
+            return ResponseEntity.status(200).body(list);
+        }
+        return ResponseEntity.status(404).build();
+    }
+
 }

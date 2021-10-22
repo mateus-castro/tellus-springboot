@@ -3,6 +3,7 @@ package br.com.bandtec.tellusspringboot.controllers;
 import br.com.bandtec.tellusspringboot.domains.Escola;
 import br.com.bandtec.tellusspringboot.domains.Gerente;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
+import br.com.bandtec.tellusspringboot.handlers.EscolaHandler;
 import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
 import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
 import br.com.bandtec.tellusspringboot.repositories.GerenteRepository;
@@ -69,17 +70,7 @@ public class EscolaController {
                 JSONObject body = new JSONObject();
                 JSONObject newGerente = new JSONObject();
 
-                newGerente.put("id", gerente.getId());
-                newGerente.put("nome", gerente.getNome());
-                newGerente.put("dataNasc", gerente.getDataNasc());
-                newGerente.put("email", gerente.getEmail());
-                newGerente.put("cpf", gerente.getCpf());
-                newGerente.put("senha", gerente.getSenha());
-                newGerente.put("imagem", gerente.getImagem());
-
-                body.put("escola", gerente.getFkEscola());
-                body.put("gerente", newGerente);
-                return ResponseEntity.status(200).body(body.toMap());
+                return ResponseEntity.status(200).body(new EscolaHandler().formatGerBody(gerente, body, newGerente).toMap());
             } else {
                 return ResponseEntity.status(204).body(null);
             }

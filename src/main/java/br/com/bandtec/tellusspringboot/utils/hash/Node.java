@@ -1,16 +1,16 @@
 package br.com.bandtec.tellusspringboot.utils.hash;
 
 public class Node {
-    private Integer info;
+    private String info;
     private Node next;
 
-    public Node(Integer info){
+    public Node(String info){
         this.info = info;
         this.next = null;
     }
 
     // GETTERS e SETTERS
-    public Integer getInfo() {
+    public String getInfo() {
         return info;
     }
 
@@ -18,7 +18,7 @@ public class Node {
         return next;
     }
 
-    public void setInfo(Integer info) {
+    public void setInfo(String info) {
         this.info = info;
     }
 

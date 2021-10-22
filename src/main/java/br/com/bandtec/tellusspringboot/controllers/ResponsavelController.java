@@ -1,12 +1,14 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
 import br.com.bandtec.tellusspringboot.domains.*;
+import br.com.bandtec.tellusspringboot.handlers.ResponsavelHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,17 +37,7 @@ public class ResponsavelController {
     @GetMapping
     public ResponseEntity getAllRespOfEscola(@RequestParam("cnpj") String cnpj){
         if(escolaRepo.existsByCnpj(cnpj)){
-            Escola escola = escolaRepo.findByCnpj(cnpj);
-            List<Responsavel> listaResp = new ArrayList<>();
-            List<Contrato> listaContrato = contRepo.findAllByFkEscola(escola);
-
-            for ( Contrato contrato : listaContrato ) {
-                Responsavel newResp = contrato.getFkResponsavel();
-                if(!listaResp.contains(newResp)) {
-                    listaResp.add(newResp);
-                }
-            }
-
+            List<Responsavel> listaResp = new ResponsavelHandler().pegaRespsDaEscola(cnpj, contRepo, escolaRepo);
             return ResponseEntity.status(200).body(listaResp);
         } else{
             System.out.println("[getAllRespOfEscola] Escola especificada não encontrada");
@@ -54,7 +46,7 @@ public class ResponsavelController {
     }
 
     @CrossOrigin
-    @GetMapping("/alunos")
+    @GetMapping("/dependentes")
     public ResponseEntity getDependentesPorResp(@RequestParam("cpf") String cpf){
         if(respRepo.existsByCpf(cpf)){
             List<Contrato> contratoList = contRepo.findAllByFkResponsavel(respRepo.findResponsavelByCpf(cpf));

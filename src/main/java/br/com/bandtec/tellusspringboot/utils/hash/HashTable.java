@@ -1,58 +1,55 @@
 package br.com.bandtec.tellusspringboot.utils.hash;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class HashTable {
     ArrayList<ListaLigada> hash;
     int cont = 0;
+    String[] caracteres = {
+            "a","b","c","d",
+            "e","f","g","h",
+            "i","j","k","l",
+            "m","n","o","p",
+            "q","r","s","t",
+            "u","v","w","x",
+            "y","z","ç","-",
+            " "
+    };
 
     public HashTable(int tamVet){
         this.hash = new ArrayList<>(tamVet);
-        for(int i = 0; i < tamVet; i++){
-            hash.add(new ListaLigada());
+        for( String letra : caracteres ){
+            hash.add(new ListaLigada(letra));
         }
     }
 
-    public int funcaoHash(int x){
-        return x%hash.size();
-    }
-
-    public boolean insere(int num){
-        for ( ListaLigada index : hash ) {
-            if(funcaoHash(num) == cont){
-                index.insereNode(num);
-                cont = 0;
+    public boolean funcaoHash(String value, ListaLigada lista, int index){
+        String valueLower = value.toLowerCase(Locale.ROOT);
+            if (valueLower.substring(index, index+1).equals(lista.getHead().getInfo())) {
                 return true;
             }
-            cont++;
-        }
-        cont = 0;
         return false;
     }
 
-    public boolean busca(int num){
+    public boolean insere(String value, int pos){
         for ( ListaLigada index : hash ) {
-            if(funcaoHash(num) == cont){
-                if(index.buscaNode(num) != null){
-                    cont = 0;
-                    return true;
-                }
+            if(this.funcaoHash(value, index, pos)) {
+                index.insereNode(value);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ListaLigada retornaLista(String value, int pos){
+        for ( ListaLigada index : hash ) {
+            if(this.funcaoHash(value, index, pos)){
+                return index;
             }
             cont++;
         }
         cont = 0;
-        return false;
-    }
-
-    public boolean remove(int num){
-        for ( ListaLigada index : hash ) {
-            if(funcaoHash(num) == cont){
-                cont = 0;
-                return index.removeNode(num);
-            }
-            cont++;
-        }
-        cont = 0;
-        return false;
+        return null;
     }
 }

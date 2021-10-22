@@ -1,59 +1,37 @@
 package br.com.bandtec.tellusspringboot.utils.hash;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ListaLigada {
     private Node head;
 
-    public ListaLigada(){
-        this.head = new Node(0);
+    // Construtor da lista ligada que recebe um caracter para ser o seu indice
+    public ListaLigada(String letra){
+        this.head = new Node(letra);
     }
 
-    // TODO Insere um nó no primeiro indice da lista
-    public void insereNode(int valor){
+    // Insere um nó no primeiro indice da lista
+    public void insereNode(String valor){
         Node newNode = new Node(valor);
         newNode.setNext(this.head.getNext());
         this.head.setNext(newNode);
     }
 
-    // TODO Exibe a lista encadeada
-    public void exibe(){
+    // Retorna a lista encadeada em forma de lista estática
+    public List<String> converteLista(){
         Node atual = head.getNext();
+        List<String> lista = new ArrayList<String>(this.getTamanho());
 
         while(atual != null){
-            System.out.println(atual.getInfo());
-            atual = atual.getNext();
-        }
-    }
-
-    // TODO Percorre a lista procurando se existe um valor igual ao parâmetro
-    public Node buscaNode(int valor){
-        Node atual = head.getNext();
-
-        while(atual != null){
-            if(atual.getInfo() == valor){
-                return atual;
-            }
+            lista.add(atual.getInfo());
             atual = atual.getNext();
         }
 
-        return null;
+        return lista;
     }
 
-    public boolean removeNode(int valor){
-        Node atual = head.getNext();
-        Node anterior = head;
-
-        while(atual != null){
-            if(atual.getInfo() == valor) {
-                anterior.setNext(atual.getNext());
-                return true;
-            }
-            anterior = atual;
-            atual = atual.getNext();
-        }
-
-        return false;
-    }
-
+    // Retorna o tamanho da lista ligada
     public int getTamanho(){
         Node atual = head.getNext();
         int tam = 0;
@@ -66,12 +44,7 @@ public class ListaLigada {
         return tam;
     }
 
-    // GETTER e SETTER
     public Node getHead() {
         return head;
-    }
-
-    public void setHead(Node head) {
-        this.head = head;
     }
 }

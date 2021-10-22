@@ -4,8 +4,11 @@ package br.com.bandtec.tellusspringboot.handlers;
 import br.com.bandtec.tellusspringboot.domains.*;
 import br.com.bandtec.tellusspringboot.repositories.AlunoRepository;
 import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
+import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
 import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
 import br.com.bandtec.tellusspringboot.utils.Util;
+import br.com.bandtec.tellusspringboot.utils.hash.HashTable;
+import br.com.bandtec.tellusspringboot.utils.hash.ListaLigada;
 
 import java.io.*;
 import java.text.ParseException;
@@ -20,7 +23,7 @@ public class GerenteHandler {
 
     private ContratoRepository contRepo;
 
-    // TODO colocar verificações da Util em todas as partes do código que necessitam (validação de data e de cpf)
+    // Função recursiva que realiza a leitura dos registros
     private ArrayList<String> leArquivo(String file, Escola escola, int cont) throws IOException {
         ArrayList<String> messageList = new ArrayList<>();
         BufferedReader arquivo = new BufferedReader(new StringReader(file));
@@ -37,6 +40,7 @@ public class GerenteHandler {
             leArquivo(arquivoFormat, escola, 1);
         }
 
+        // Se existir um próximo registro, a função lê
         if (linha != null) {
             messageList.add(this.insereRegistro(linha, escola, cont));
             // Removendo a linha lida do arquivo
@@ -44,10 +48,12 @@ public class GerenteHandler {
             leArquivo(novoArquivo, escola, ++cont);
         }
 
+        // Caso contrário, a lista de mensagens é retornada
         return messageList;
 
     }
 
+    // Chama a função recursiva pela primeira vez e atribui os repositórios vindo da classe controller
     public ArrayList<String> insereRegistrosDeArquivo(String file, Escola escola, ResponsavelRepository respRepo, AlunoRepository alunoRepo, ContratoRepository contRepo) throws IOException {
         this.respRepo = respRepo;
         this.alunoRepo = alunoRepo;
@@ -55,7 +61,9 @@ public class GerenteHandler {
         return this.leArquivo(file, escola, 0);
     }
 
+    // Inicia a verificação do algoritmo pelo registro do responsável
     private String insereRegistro(String registro, Escola escola, int nReg){
+        // Separando informações do responsavel e excluíndo da linha
         String nome = this.separaCampo(registro);
         registro = registro.replaceFirst(nome+";", "");
 
@@ -80,6 +88,7 @@ public class GerenteHandler {
         registro = registro.replaceFirst(telefone+";", "");
 
         try{
+            // Caso o responsável seja válido e não exista no banco, insere seus dados
             if(!respRepo.existsByCpf(formattedCpf)){
                 Responsavel novoResp = new Responsavel();
                 novoResp.setNome(nome);
@@ -92,6 +101,7 @@ public class GerenteHandler {
                 respRepo.save(novoResp);
                 return this.verificaAluno(novoResp, escola, registro, nReg);
             } else {
+                // Caso contrário, a próxima função é chamada
                 return this.verificaAluno(respRepo.findResponsavelByCpf(cpf), escola, registro, nReg);
             }
         } catch(Exception e){
@@ -100,8 +110,9 @@ public class GerenteHandler {
         }
     }
 
+    // Inicia a verificação dos registros do aluno
     private String verificaAluno(Responsavel resp, Escola escola, String registro, int nReg){
-        // Separando informações do aluno
+        // Separando informações do aluno e excluíndo da linha
         String ra = this.separaCampo(registro);
         registro = registro.replaceFirst(ra+";", "");
 
@@ -178,5 +189,41 @@ public class GerenteHandler {
 
     private String separaCampo(String registro){
         return registro.substring(0, registro.indexOf(";"));
+    }
+
+    public List<String> pesquisaHash(String value, int pos, String cnpj, ContratoRepository contRepo, EscolaRepository escolaRepo) {
+        HashTable tabela = new HashTable(29);
+        List<Responsavel> listResp = new ResponsavelHandler().pegaRespsDaEscola(cnpj, contRepo, escolaRepo);
+
+        for ( Responsavel resp : listResp ) {
+            tabela.insere(resp.getNome(), pos);
+        }
+
+        if(value.length() >= 2){
+            ListaLigada newLista = tabela.retornaLista(value, pos);
+            List<String> list = newLista.converteLista();
+            return this.pesquisaHash(value, list, 1);
+        } else {
+            ListaLigada newLista = tabela.retornaLista(value, pos);
+            return newLista.converteLista();
+        }
+    }
+
+    public List<String> pesquisaHash(String value, List<String> lista, int pos){
+        HashTable tabela = new HashTable(29);
+
+        for(String nome : lista ){
+            tabela.insere(nome, pos);
+        }
+
+        ListaLigada newLista = tabela.retornaLista(value, pos);
+        List<String> nameList = newLista.converteLista();
+
+        if(value.length() == pos+1) {
+            return nameList;
+        }else{
+            return pesquisaHash(value, nameList, pos+1);
+        }
+
     }
 }
