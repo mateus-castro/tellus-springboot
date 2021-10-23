@@ -1,4 +1,4 @@
-FROM openjdk:10-alpine
+FROM openjdk
 
 USER root
 
