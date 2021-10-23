@@ -5,4 +5,4 @@ services:
     build: .
     ports:
     - "8080:8080"
-    command: "java -jar tellus-springboot.jar"
+    command: "java -jar tellus-springboot-0.0.1-SNAPSHOT.jar"
