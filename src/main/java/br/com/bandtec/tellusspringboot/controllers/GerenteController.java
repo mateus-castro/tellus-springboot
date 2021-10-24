@@ -2,7 +2,7 @@ package br.com.bandtec.tellusspringboot.controllers;
 
 import br.com.bandtec.tellusspringboot.domains.Escola;
 import br.com.bandtec.tellusspringboot.domains.Gerente;
-import br.com.bandtec.tellusspringboot.domains.Login;
+import br.com.bandtec.tellusspringboot.domains.Responsavel;
 import br.com.bandtec.tellusspringboot.handlers.GerenteHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
 import br.com.bandtec.tellusspringboot.utils.Util;
@@ -163,7 +163,12 @@ public class GerenteController {
     public ResponseEntity pesquisaHashTable(@RequestParam("value") String value, @RequestParam("cnpj") String cnpj) throws IOException {
         if(escolaRepo.existsByCnpj(cnpj)){
             List<String> list = new GerenteHandler().pesquisaHash(value, 0, cnpj, contratoRepo, escolaRepo);
-            return ResponseEntity.status(200).body(list);
+            List<Responsavel> listResp = new ArrayList<Responsavel>();
+            for ( String nomeResp : list ){
+                List<Responsavel> aux = respRepo.findResponsavelsByNome(nomeResp);
+                listResp.addAll(aux);
+            }
+            return ResponseEntity.status(200).body(listResp);
         }
         return ResponseEntity.status(404).build();
     }

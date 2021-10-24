@@ -192,7 +192,7 @@ public class GerenteHandler {
     }
 
     public List<String> pesquisaHash(String value, int pos, String cnpj, ContratoRepository contRepo, EscolaRepository escolaRepo) {
-        HashTable tabela = new HashTable(29);
+        HashTable tabela = new HashTable();
         List<Responsavel> listResp = new ResponsavelHandler().pegaRespsDaEscola(cnpj, contRepo, escolaRepo);
 
         for ( Responsavel resp : listResp ) {
@@ -209,8 +209,10 @@ public class GerenteHandler {
         }
     }
 
+
+
     public List<String> pesquisaHash(String value, List<String> lista, int pos){
-        HashTable tabela = new HashTable(29);
+        HashTable tabela = new HashTable();
 
         for(String nome : lista ){
             tabela.insere(nome, pos);

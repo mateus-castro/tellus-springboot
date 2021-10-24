@@ -17,8 +17,8 @@ public class HashTable {
             " "
     };
 
-    public HashTable(int tamVet){
-        this.hash = new ArrayList<>(tamVet);
+    public HashTable(){
+        this.hash = new ArrayList<>(caracteres.length);
         for( String letra : caracteres ){
             hash.add(new ListaLigada(letra));
         }
