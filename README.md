@@ -1,1 +1,1 @@
-# adicionar passo a passo para execução do backend :)
+API dedicada ao sistema de gerenciamento de capital TELLUS.
