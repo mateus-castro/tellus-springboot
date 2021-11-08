@@ -8,6 +8,7 @@ import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
 import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
 import br.com.bandtec.tellusspringboot.repositories.GerenteRepository;
 import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
+import br.com.bandtec.tellusspringboot.utils.Util;
 import io.swagger.annotations.Api;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,12 @@ public class EscolaController {
     @CrossOrigin
     @PostMapping
     public ResponseEntity postEscola(@RequestBody Escola escola) {
-        escolaRepo.save(escola);
-        return ResponseEntity.status(201).build();
-
+        if(escolaRepo.existsByCnpj(escola.getCnpj())){
+            escola.setCnpj(Util.formataCnpj(escola.getCnpj()));
+            escolaRepo.save(escola);
+            return ResponseEntity.status(201).build();
+        }
+        return ResponseEntity.status(409).build();
     }
 
     @CrossOrigin

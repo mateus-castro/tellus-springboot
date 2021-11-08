@@ -74,7 +74,7 @@ public class GerenteController {
     @CrossOrigin
     @PostMapping
     public ResponseEntity postGerente(@RequestBody Gerente gerente) {
-        String valCpf = Util.validaCpf(gerente.getCpf());
+        String valCpf = Util.formataCpf(gerente.getCpf());
         if(!valCpf.equals("")) {
             if (repositoryGerente.existsByCpf(valCpf)) {
                 System.out.println("[postGerente] Gerente já é cadastrado");

@@ -81,8 +81,11 @@ public class ResponsavelController {
     @CrossOrigin
     @PostMapping
     public ResponseEntity postResponsavel(@RequestBody Responsavel responsavel) {
-        respRepo.save(responsavel);
-        return ResponseEntity.status(201).build();
+        if(respRepo.existsByCpf(responsavel.getCpf())) {
+            respRepo.save(responsavel);
+            return ResponseEntity.status(201).build();
+        }
+        return ResponseEntity.status(409).build();
     }
 
     @CrossOrigin

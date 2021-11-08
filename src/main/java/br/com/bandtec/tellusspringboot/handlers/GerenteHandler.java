@@ -75,7 +75,7 @@ public class GerenteHandler {
         registro = registro.replaceFirst(email+";", "");
 
         String cpf = this.separaCampo(registro);
-        String formattedCpf = Util.validaCpf(cpf);
+        String formattedCpf = Util.formataCpf(cpf);
         if (formattedCpf.equals("")){
             return "Registro " + nReg + ": CPF do [Responsável] é inválido.";
         }
@@ -208,8 +208,6 @@ public class GerenteHandler {
             return newLista.converteLista();
         }
     }
-
-
 
     public List<String> pesquisaHash(String value, List<String> lista, int pos){
         HashTable tabela = new HashTable();
