@@ -1,0 +1,10 @@
+FROM nginx:alpine
+
+USER root
+
+RUN mkdir -p /usr/src/lb
+WORKDIR /usr/src/lb
+
+
+RUN cd /etc/nginx/conf.d/default.conf
+COPY /setup/lbbackend.nginx.conf /etc/nginx/conf.d/default.conf
