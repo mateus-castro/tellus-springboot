@@ -9,4 +9,4 @@ COPY target/*.jar /usr/src/backend
 
 # expose app port and run
 EXPOSE 8080
-CMD ["java","--jar","tellus-springboot-0.0.1-SNAPSHOT.jar"]
+CMD ["java","--Dspring.profiles.active=hml","--jar","tellus-springboot-0.0.1-SNAPSHOT.jar"]

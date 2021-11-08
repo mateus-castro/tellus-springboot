@@ -1,8 +1,22 @@
-version: "3"
+version: '3'
 
 services:
-  app:
-    build: .
+  db:
+    image: mysql:8.0.23
+    environment:
+      - MYSQL_ROOT_PASSWORD=tellus123
+      - MYSQL_DATABASE=tellus
+      - MYSQL_USER=tellus
+      - MYSQL_PASSWORD=tellus123
     ports:
-    - "8080:8080"
-    command: "java -jar tellus-springboot-0.0.1-SNAPSHOT.jar"
+      - 3307:3306
+
+  app:
+    image: app:latest
+    ports:
+      - 8080:8080
+    command: "java -jar --Dspring.profiles.active=hml tellus-springboot-0.0.1-SNAPSHOT.jar"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://dbserver-tellus-hml.cvykfkadvk5h.us-east-1.rds.amazonaws.com:3306/tellus?createDatabaseIfNotExist=true&useTimezone=true&serverTimezone=UTC&useSSL=false
+    depends_on:
+      - db
