@@ -1,8 +1,9 @@
-FROM nginx:alpine
+FROM nginx
 
 USER root
 
 RUN mkdir -p /usr/src/lb
-WORKDIR /usr/src/lb
 
-COPY /setup/lbbackend.nginx.conf /etc/nginx/conf.d/default.conf
+COPY tellus-springboot/setup/lbbackend.nginx.conf  /usr/src/lb
+
+COPY lbbackend.nginx.conf /etc/nginx/conf.d/default.conf
