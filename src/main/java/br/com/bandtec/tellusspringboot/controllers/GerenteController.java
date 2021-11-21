@@ -1,17 +1,20 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
+import br.com.bandtec.tellusspringboot.aws.S3Repository;
 import br.com.bandtec.tellusspringboot.domains.Escola;
 import br.com.bandtec.tellusspringboot.domains.Gerente;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
 import br.com.bandtec.tellusspringboot.handlers.GerenteHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
 import br.com.bandtec.tellusspringboot.utils.Util;
+import com.amazonaws.services.s3.AmazonS3Client;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +40,6 @@ public class GerenteController {
 
     @Autowired
     private EscolaRepository escolaRepo;
-
 
     @ApiOperation(value = "Retorna todos o gerentes referentes a uma escola.")
     @ApiResponses(value = {
@@ -167,10 +169,27 @@ public class GerenteController {
             for ( String nomeResp : list ){
                 List<Responsavel> aux = respRepo.findResponsavelsByNome(nomeResp);
                 listResp.addAll(aux);
+                ArrayList<String> lala = {"asdas", "asdasd"}
             }
             return ResponseEntity.status(200).body(listResp);
         }
         return ResponseEntity.status(404).build();
+    }
+
+    @CrossOrigin
+    @PutMapping("/image")
+    public ResponseEntity atualizaImagemGerente(@RequestParam("file") File file, @RequestParam("cpf") String cpfGerente){
+        AmazonS3Client s3Client = new AmazonS3Client();
+        new S3Repository(s3Client).putFile(file);
+        return ResponseEntity.status(200).build();
+    }
+
+    @CrossOrigin
+    @PutMapping("/create-bucket")
+    public ResponseEntity atualizaImagemGerente(){
+        AmazonS3Client s3Client = new AmazonS3Client();
+        String nameBucket = new S3Repository(s3Client).criarBucket();
+        return ResponseEntity.status(200).body(nameBucket);
     }
 
 }
