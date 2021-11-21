@@ -1,6 +1,5 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
-import br.com.bandtec.tellusspringboot.aws.S3Repository;
 import br.com.bandtec.tellusspringboot.domains.Escola;
 import br.com.bandtec.tellusspringboot.domains.Gerente;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
@@ -169,27 +168,11 @@ public class GerenteController {
             for ( String nomeResp : list ){
                 List<Responsavel> aux = respRepo.findResponsavelsByNome(nomeResp);
                 listResp.addAll(aux);
-                ArrayList<String> lala = {"asdas", "asdasd"}
             }
             return ResponseEntity.status(200).body(listResp);
         }
         return ResponseEntity.status(404).build();
     }
 
-    @CrossOrigin
-    @PutMapping("/image")
-    public ResponseEntity atualizaImagemGerente(@RequestParam("file") File file, @RequestParam("cpf") String cpfGerente){
-        AmazonS3Client s3Client = new AmazonS3Client();
-        new S3Repository(s3Client).putFile(file);
-        return ResponseEntity.status(200).build();
-    }
-
-    @CrossOrigin
-    @PutMapping("/create-bucket")
-    public ResponseEntity atualizaImagemGerente(){
-        AmazonS3Client s3Client = new AmazonS3Client();
-        String nameBucket = new S3Repository(s3Client).criarBucket();
-        return ResponseEntity.status(200).body(nameBucket);
-    }
 
 }
