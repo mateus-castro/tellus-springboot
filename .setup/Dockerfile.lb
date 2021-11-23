@@ -4,6 +4,6 @@ USER root
 
 RUN mkdir -p /usr/src/lb
 
-COPY tellus-springboot/setup/lbbackend.nginx.conf  /usr/src/lb
+# COPY tellus-springboot/setup/lbbackend.nginx.conf  /usr/src/lb
 
 COPY lbbackend.nginx.conf /etc/nginx/conf.d/default.conf
