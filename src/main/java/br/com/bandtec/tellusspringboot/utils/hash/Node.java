@@ -1,16 +1,18 @@
 package br.com.bandtec.tellusspringboot.utils.hash;
 
+import br.com.bandtec.tellusspringboot.domains.Responsavel;
+
 public class Node {
-    private String info;
+    private Responsavel info;
     private Node next;
 
-    public Node(String info){
+    public Node(Responsavel info){
         this.info = info;
         this.next = null;
     }
 
     // GETTERS e SETTERS
-    public String getInfo() {
+    public Responsavel getInfo() {
         return info;
     }
 
@@ -18,7 +20,7 @@ public class Node {
         return next;
     }
 
-    public void setInfo(String info) {
+    public void setInfo(Responsavel info) {
         this.info = info;
     }
 

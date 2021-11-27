@@ -1,6 +1,10 @@
 package br.com.bandtec.tellusspringboot.utils.hash;
 
+import br.com.bandtec.tellusspringboot.domains.Responsavel;
+import br.com.bandtec.tellusspringboot.services.HashService;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class HashTable {
@@ -24,28 +28,24 @@ public class HashTable {
         }
     }
 
-    public boolean funcaoHash(String value, ListaLigada lista, int index){
-        String valueLower = value.toLowerCase(Locale.ROOT);
-            if (valueLower.substring(index, index+1).equals(lista.getHead().getInfo())) {
-                return true;
-            }
-        return false;
+    public boolean funcaoHash(String resp, ListaLigada lista, int index){
+        String valueLower = resp.toLowerCase(Locale.ROOT);
+        return valueLower.substring(0, 1).equals(lista.getHead().getInfo().getNome());
     }
 
-    public boolean insere(String value, int pos){
+    public void insere(Responsavel value, int pos){
         for ( ListaLigada index : hash ) {
-            if(this.funcaoHash(value, index, pos)) {
+            if(this.funcaoHash(value.getNome(), index, pos)) {
                 index.insereNode(value);
-                return true;
             }
         }
-        return false;
     }
 
-    public ListaLigada retornaLista(String value, int pos){
+    public List<Responsavel> retornaLista(String value, int pos){
         for ( ListaLigada index : hash ) {
             if(this.funcaoHash(value, index, pos)){
-                return index;
+                if(pos == 0) return index.converteLista();
+                return index.filtraLista(value);
             }
             cont++;
         }

@@ -5,7 +5,9 @@ import br.com.bandtec.tellusspringboot.domains.Gerente;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
 import br.com.bandtec.tellusspringboot.handlers.GerenteHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
+import br.com.bandtec.tellusspringboot.services.HashService;
 import br.com.bandtec.tellusspringboot.utils.Util;
+import br.com.bandtec.tellusspringboot.utils.hash.HashTable;
 import com.amazonaws.services.s3.AmazonS3Client;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,21 +121,9 @@ public class GerenteController {
     @CrossOrigin
     @PostMapping("/csv-download")
     public ResponseEntity<String> CadastroMassivo(
-            @ApiParam(
-                    name =  "file",
-                    type = "MultipartFile",
-                    value = "Arquivo .csv que contém os dados a serem inseridos",
-                    example = "teste.csv",
-                    required = true
-            )
+            @ApiParam(name =  "file", type = "MultipartFile", value = "Arquivo .csv que contém os dados a serem inseridos", example = "teste.csv", required = true)
             @RequestParam("file") MultipartFile file,
-            @ApiParam(
-                    name =  "cpf",
-                    type = "String",
-                    value = "CPF do Gerente",
-                    example = "515.973.188-17",
-                    required = true
-            )
+            @ApiParam(name =  "cpf", type = "String", value = "CPF do Gerente", example = "515.973.188-17", required = true)
             @RequestParam("cpf") String cpfGerente) throws IOException {
         if(!Objects.equals(file.getContentType(), "text/csv") && !Objects.equals(file.getContentType(), "application/vnd.ms-excel")){
             return ResponseEntity.status(400).body("Arquivo enviado não está no formato correto. Envie um arquivo .csv :).");
@@ -163,13 +153,8 @@ public class GerenteController {
     @GetMapping("/pesquisa")
     public ResponseEntity pesquisaHashTable(@RequestParam("value") String value, @RequestParam("cnpj") String cnpj) throws IOException {
         if(escolaRepo.existsByCnpj(cnpj)){
-            List<String> list = new GerenteHandler().pesquisaHash(value, 0, cnpj, contratoRepo, escolaRepo);
-            List<Responsavel> listResp = new ArrayList<Responsavel>();
-            for ( String nomeResp : list ){
-                List<Responsavel> aux = respRepo.findResponsavelsByNome(nomeResp);
-                listResp.addAll(aux);
-            }
-            return ResponseEntity.status(200).body(listResp);
+            List<Responsavel> list = new GerenteHandler().pesquisaHash(value, 0, cnpj, contratoRepo, escolaRepo);
+            return ResponseEntity.status(200).body(list);
         }
         return ResponseEntity.status(404).build();
     }
