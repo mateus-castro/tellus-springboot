@@ -12,7 +12,7 @@ public class Pagamento {
     private Contrato fkContrato;
 
     private String tipo;
-    private String dataVenc;
+    private Date dataVenc;
     private Double valor;
     private Integer situacao;
     private Date dataPgto;
@@ -41,11 +41,11 @@ public class Pagamento {
         this.tipo = tipo;
     }
 
-    public String getDataVenc() {
+    public Date getDataVenc() {
         return dataVenc;
     }
 
-    public void setDataVenc(String dataVenc) {
+    public void setDataVenc(Date dataVenc) {
         this.dataVenc = dataVenc;
     }
 
