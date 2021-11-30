@@ -79,14 +79,15 @@ public class ResponsavelController {
     }
 
     @CrossOrigin
-    @GetMapping("/calendario")
+    @GetMapping("/juros")
     public ResponseEntity getCalendario(@RequestParam("cpf") String cpf,
                                         @RequestParam("nomeAluno") String nomeAluno) {
         if (respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)) {
             Contrato contrato = contRepo.findContratoByFkAluno(alunoRepo.findAlunoByNome(nomeAluno));
             List<Pagamento> listaPagtos = pagRepo.findAllByFkContrato(contrato);
 
-            Double valorJuros = 2.0;
+
+            Double valorJuros = escolaRepo.findById(contrato.getFkEscola().getId()).get().getJuros();
             Integer qntAtrasos = 0;
             Double valorLiquido = 0.0;
 

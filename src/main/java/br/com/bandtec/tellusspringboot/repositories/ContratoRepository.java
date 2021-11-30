@@ -6,10 +6,13 @@ import br.com.bandtec.tellusspringboot.domains.Escola;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ContratoRepository extends JpaRepository<Contrato, Integer> {
     List<Contrato> findAll();
+
+    List<Contrato> findByDataInicioAndDataFim(Date dataInicio, Date dataFim);
 
     Contrato findFirstByFkResponsavel(Responsavel responsavel);
     Contrato findContratoByFkAluno(Aluno aluno);

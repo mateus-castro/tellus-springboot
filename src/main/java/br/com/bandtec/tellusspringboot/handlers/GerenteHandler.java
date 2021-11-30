@@ -219,6 +219,7 @@ public class GerenteHandler {
         pagamento.setDataVenc(dataContrato);
         pagamento.setValor(valor);
         pagamento.setDataPgto(dataDefault);
+        pagamento.setNumProtocolo(lUUID);
 
         for(int i = 0; i < contrato.getNumParcelas(); i++)
         {

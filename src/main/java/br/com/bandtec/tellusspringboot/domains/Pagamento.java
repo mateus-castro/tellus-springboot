@@ -16,6 +16,7 @@ public class Pagamento {
     private Double valor;
     private Integer situacao;
     private Date dataPgto;
+    private String numProtocolo;
 
     public Integer getId() {
         return id;
@@ -71,5 +72,13 @@ public class Pagamento {
 
     public void setDataPgto(Date dataPgto) {
         this.dataPgto = dataPgto;
+    }
+
+    public String getNumProtocolo() {
+        return numProtocolo;
+    }
+
+    public void setNumProtocolo(String numProtocolo) {
+        this.numProtocolo = numProtocolo;
     }
 }
