@@ -37,9 +37,7 @@ public class HashService {
         listaEscolas.forEach((escola) -> {
             HashTable hash = new HashTable();
             List<Responsavel> listResp = new ResponsavelHandler().pegaRespsDaEscola(escola.getCnpj(), contRepo, escolaRepo);
-            listResp.forEach((responsavel) -> {
-                hash.insere(responsavel, 0);
-            });
+            listResp.forEach((resp) -> hash.insere(resp, contRepo));
             hashList.add(new HashFormater(hash, escola.getCnpj()));
         });
     }

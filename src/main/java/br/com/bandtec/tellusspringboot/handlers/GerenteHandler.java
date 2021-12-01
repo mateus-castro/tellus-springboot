@@ -195,7 +195,7 @@ public class GerenteHandler {
         return registro.substring(0, registro.indexOf(";"));
     }
 
-    public List<Responsavel> pesquisaHash(String value, int pos, String cnpj, ContratoRepository contRepo, EscolaRepository escolaRepo) {
+    public List<ResponsavelCacheModel> pesquisaHash(String value, int pos, String cnpj, ContratoRepository contRepo, EscolaRepository escolaRepo) {
         List<HashFormater> lista = HashService.hashList.stream().filter((item) -> item.getCnpj().equals(cnpj)).collect(Collectors.toList());
         if(lista.size() < 1) throw new NoSuchElementException();
         HashTable tabela = lista.get(0).getHash();
@@ -206,7 +206,7 @@ public class GerenteHandler {
         }
     }
 
-    public List<Responsavel> pesquisaHash(String value, HashTable tabela, int pos){
+    public List<ResponsavelCacheModel> pesquisaHash(String value, HashTable tabela, int pos){
         if(value.length() == pos+1) {
             return tabela.retornaLista(value, pos);
         }else{

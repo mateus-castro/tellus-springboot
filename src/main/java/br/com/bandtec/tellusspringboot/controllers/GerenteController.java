@@ -3,6 +3,7 @@ package br.com.bandtec.tellusspringboot.controllers;
 import br.com.bandtec.tellusspringboot.domains.Escola;
 import br.com.bandtec.tellusspringboot.domains.Gerente;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
+import br.com.bandtec.tellusspringboot.domains.ResponsavelCacheModel;
 import br.com.bandtec.tellusspringboot.handlers.GerenteHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
 import br.com.bandtec.tellusspringboot.services.HashService;
@@ -153,7 +154,7 @@ public class GerenteController {
     @GetMapping("/pesquisa")
     public ResponseEntity pesquisaHashTable(@RequestParam("value") String value, @RequestParam("cnpj") String cnpj) throws IOException {
         if(escolaRepo.existsByCnpj(cnpj)){
-            List<Responsavel> list = new GerenteHandler().pesquisaHash(value, 0, cnpj, contratoRepo, escolaRepo);
+            List<ResponsavelCacheModel> list = new GerenteHandler().pesquisaHash(value, 0, cnpj, contratoRepo, escolaRepo);
             return ResponseEntity.status(200).body(list);
         }
         return ResponseEntity.status(404).build();
