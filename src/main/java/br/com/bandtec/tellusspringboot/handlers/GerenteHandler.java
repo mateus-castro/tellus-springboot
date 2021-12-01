@@ -184,6 +184,7 @@ public class GerenteHandler {
             novoContrato.setSituacao(situacao);
 
             contRepo.save(novoContrato);
+            new HashService().insereEmCache(resp, escola);
             return "";
         } catch (Exception e){
             System.out.println(e);
@@ -195,23 +196,8 @@ public class GerenteHandler {
         return registro.substring(0, registro.indexOf(";"));
     }
 
-    public List<ResponsavelCacheModel> pesquisaHash(String value, int pos, String cnpj, ContratoRepository contRepo, EscolaRepository escolaRepo) {
-        List<HashFormater> lista = HashService.hashList.stream().filter((item) -> item.getCnpj().equals(cnpj)).collect(Collectors.toList());
-        if(lista.size() < 1) throw new NoSuchElementException();
-        HashTable tabela = lista.get(0).getHash();
-        if(value.length() >= 2){
-            return this.pesquisaHash(value, tabela, 1);
-        } else {
-            return tabela.retornaLista(value, pos);
-        }
-    }
-
-    public List<ResponsavelCacheModel> pesquisaHash(String value, HashTable tabela, int pos){
-        if(value.length() == pos+1) {
-            return tabela.retornaLista(value, pos);
-        }else{
-            return pesquisaHash(value, tabela, pos+1);
-        }
-
+    public List<ResponsavelCacheModel> pesquisaHash(String value, String cnpj) {
+        HashTable hash = HashService.hashTable;
+        return hash.retornaLista(value, cnpj);
     }
 }

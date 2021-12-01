@@ -93,21 +93,15 @@ public class GerenteController {
         }
     }
 
-    @ApiOperation(value = "Deleta um gerente do banco.")
+    @ApiOperation(value = "Deleta um gerente do banco e em cache.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Deleta o gerente."),
-            @ApiResponse(code = 204, message = "Não insere gerente no banco e retorna mensagem de erro.")
+            @ApiResponse(code = 404, message = "Não insere gerente no banco e retorna mensagem de erro.")
     })
     @CrossOrigin
     @DeleteMapping
     public ResponseEntity deleteGerente(
-            @ApiParam(
-                    name =  "cpf",
-                    type = "String",
-                    value = "CPF do Gerente",
-                    example = "515.973.188-17",
-                    required = true
-            )
+            @ApiParam(name =  "cpf", type = "String", value = "CPF do Gerente", example = "515.973.188-17", required = true)
             @RequestParam("cpf") String cpf
     ) {
         if (repositoryGerente.existsByCpf(cpf)) {
@@ -115,7 +109,7 @@ public class GerenteController {
             return ResponseEntity.status(200).body("Gerente deletado com sucesso");
         }
         System.out.println("[deleteGerente] Gerente com o cpf " + cpf + " não foi encontrado");
-        return ResponseEntity.status(204).build();
+        return ResponseEntity.status(404).build();
     }
 
     @ApiOperation(value = "Faz um cadastro massivo via .csv.")
@@ -147,14 +141,13 @@ public class GerenteController {
             return ResponseEntity.status(404).body("Gerente informado não foi encontrado.");
         }
 
-
     }
 
     @CrossOrigin
     @GetMapping("/pesquisa")
     public ResponseEntity pesquisaHashTable(@RequestParam("value") String value, @RequestParam("cnpj") String cnpj) throws IOException {
         if(escolaRepo.existsByCnpj(cnpj)){
-            List<ResponsavelCacheModel> list = new GerenteHandler().pesquisaHash(value, 0, cnpj, contratoRepo, escolaRepo);
+            List<ResponsavelCacheModel> list = new GerenteHandler().pesquisaHash(value, cnpj);
             return ResponseEntity.status(200).body(list);
         }
         return ResponseEntity.status(404).build();

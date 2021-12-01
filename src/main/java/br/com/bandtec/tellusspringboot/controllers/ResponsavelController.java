@@ -3,7 +3,8 @@ package br.com.bandtec.tellusspringboot.controllers;
 import br.com.bandtec.tellusspringboot.domains.*;
 import br.com.bandtec.tellusspringboot.handlers.ResponsavelHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
-import io.swagger.annotations.Api;
+import br.com.bandtec.tellusspringboot.services.HashService;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +33,9 @@ public class ResponsavelController {
     
     @Autowired
     private PagamentoRepository pagRepo;
+
+    @Autowired
+    private HashService hashService;
 
     @CrossOrigin
     @GetMapping
@@ -80,19 +84,30 @@ public class ResponsavelController {
 
     @CrossOrigin
     @PostMapping
-    public ResponseEntity postResponsavel(@RequestBody Responsavel responsavel) {
+    public ResponseEntity postResponsavel(@RequestBody Responsavel responsavel, @RequestParam String cnpj) {
         if(respRepo.existsByCpf(responsavel.getCpf())) {
             respRepo.save(responsavel);
+            hashService.insereEmCache(responsavel, escolaRepo.findByCnpj(cnpj));
             return ResponseEntity.status(201).build();
         }
         return ResponseEntity.status(409).build();
     }
 
+    @ApiOperation(value = "Deleta um responsável do banco e em cache.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Deleta o responsável."),
+            @ApiResponse(code = 404, message = "Não insere gerente no banco e retorna mensagem de erro.")
+    })
     @CrossOrigin
     @DeleteMapping
-    public ResponseEntity deleteResponsavel(@RequestParam("cpf") String cpf) {
+    public ResponseEntity deleteResponsavel(
+            @ApiParam(name =  "cpf", type = "String", value = "CPF do Responsável", example = "515.973.188-17", required = true)
+            @RequestParam("cpf") String cpf,
+            @ApiParam(name =  "cnpj", type = "String", value = "CNPJ da Escola", example = "78.461.539/0001-35", required = true)
+            @RequestParam("cnpj") String cnpj) {
         if (respRepo.existsByCpf(cpf)) {
             respRepo.deleteByCpf(cpf);
+            hashService.removeEmCache(respRepo.findResponsavelByCpf(cpf), escolaRepo.findByCnpj(cnpj));
             return ResponseEntity.status(200).body("Responsavel deletado com sucesso");
         }
         return ResponseEntity.status(404).body("Responsavel com o CPF: " + cpf + "Não foi encontrado");

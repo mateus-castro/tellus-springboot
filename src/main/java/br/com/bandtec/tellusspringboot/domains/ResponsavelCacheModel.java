@@ -5,12 +5,14 @@ public class ResponsavelCacheModel {
     private int qtdResps;
     private String img;
     private String cnpjEscola;
+    private String cpf;
 
-    public ResponsavelCacheModel(String nomeResp, int qtdResps, String img, String cnpjEscola) {
+    public ResponsavelCacheModel(String nomeResp, int qtdResps, String img, String cnpjEscola, String cpf) {
         this.nomeResp = nomeResp;
         this.qtdResps = qtdResps;
         this.img = img;
         this.cnpjEscola = cnpjEscola;
+        this.cpf = cpf;
     }
 
     public String getNomeResp() {
@@ -43,5 +45,13 @@ public class ResponsavelCacheModel {
 
     public void setCnpjEscola(String cnpjEscola) {
         this.cnpjEscola = cnpjEscola;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 }

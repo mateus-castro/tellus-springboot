@@ -1,7 +1,3 @@
 amazonProperties:
   bucket:
     name: s3://bucket-tellus
-
-jwt:
-  expiration: 36000000
-  secret: 3c7112c7-6ce4-4264-b5b9-c1d1269540cf

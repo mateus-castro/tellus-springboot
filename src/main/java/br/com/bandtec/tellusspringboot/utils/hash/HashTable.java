@@ -20,39 +20,35 @@ public class HashTable {
             "m","n","o","p",
             "q","r","s","t",
             "u","v","w","x",
-            "y","z","ç","-",
-            " "
+            "y","z"
     };
 
     public HashTable(){
         this.hash = new ListaLigada[caracteres.length];
-        for( int i = 0; i <= caracteres.length; i++ ){
+        for( int i = 0; i < caracteres.length; i++ ){
             hash[i] = new ListaLigada(caracteres[i]);
         }
     }
 
-    public int funcaoHash(String resp, int index){
-        if(resp.substring(index).equals("ç")) return 26;
-        if(resp.substring(index).equals("-")) return 27;
-        if(resp.substring(index).equals(" ")) return 28;
-        return resp.toLowerCase(Locale.ROOT).toCharArray()[index]-97;
+    public int funcaoHash(String resp){
+        return resp.toLowerCase(Locale.ROOT).toCharArray()[0]-97;
     }
 
-    public void insere(Responsavel value, int pos, ContratoRepository contratoRepo, String cnpj){
-        hash[this.funcaoHash(value.getNome(), pos)]
+    public void insere(Responsavel resp, ContratoRepository contratoRepo, String cnpj){
+        hash[this.funcaoHash(resp.getNome())]
                 .insereNode(new ResponsavelCacheModel(
-                        value.getNome()
-                        , contratoRepo.countAllByFkResponsavel(value)
-                        , value.getImagem()
-                        , cnpj));
+                        resp.getNome()
+                        , contratoRepo.countAllByFkResponsavel(resp)
+                        , resp.getImagem()
+                        , cnpj
+                        , resp.getCpf()));
     }
 
-    public void insere(Responsavel value, ContratoRepository contratoRepo){
-        this.insere(value, 0, contratoRepo);
+    public List<ResponsavelCacheModel> retornaLista(String value, String cnpj){
+        return hash[this.funcaoHash(value)].filtraLista(value, cnpj);
     }
 
-    public List<ResponsavelCacheModel> retornaLista(String value, int pos){
-        if(pos == 0) return hash[this.funcaoHash(value,pos)].converteLista();
-        return hash[this.funcaoHash(value,pos)].filtraLista(value);
+    public void remove(Responsavel resp, String cnpj) {
+        hash[this.funcaoHash(resp.getNome())].removeNode(resp.getCpf(), cnpj);
     }
 }

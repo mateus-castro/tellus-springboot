@@ -14,7 +14,7 @@ public class ListaLigada {
 
     // Construtor da lista ligada que recebe um caracter para ser o seu indice
     public ListaLigada(String letra){
-        ResponsavelCacheModel resp = new ResponsavelCacheModel(letra, 0, null, null);
+        ResponsavelCacheModel resp = new ResponsavelCacheModel(letra, 0, null, null, null);
         this.head = new Node(resp);
     }
 
@@ -50,12 +50,14 @@ public class ListaLigada {
         return tam;
     }
 
-    public List<ResponsavelCacheModel> filtraLista(String value){
+    public List<ResponsavelCacheModel> filtraLista(String value, String cnpj){
         Node atual = this.head.getNext();
         ArrayList<ResponsavelCacheModel> filteredRespList = new ArrayList<>();
 
         while(atual != null){
-            if(atual.getInfo().getNomeResp().toLowerCase(Locale.ROOT).startsWith(value.toLowerCase(Locale.ROOT))) filteredRespList.add(atual.getInfo());
+            if(atual.getInfo().getNomeResp().toLowerCase(Locale.ROOT).startsWith(value.toLowerCase(Locale.ROOT)) && atual.getInfo().getCnpjEscola().equals(cnpj)) {
+                filteredRespList.add(atual.getInfo());
+            }
             atual = atual.getNext();
         }
         return filteredRespList;
@@ -63,5 +65,18 @@ public class ListaLigada {
 
     public Node getHead() {
         return head;
+    }
+
+    public void removeNode(String cpf, String cnpj) {
+        Node anterior = this.head;
+        Node atual = this.head.getNext();
+
+        while(atual != null){
+            if(atual.getInfo().getCpf().equals(cpf) && atual.getInfo().getCnpjEscola().equals(cnpj)) {
+                anterior.setNext(atual.getNext());
+            }
+            anterior = atual;
+            atual = atual.getNext();
+        }
     }
 }

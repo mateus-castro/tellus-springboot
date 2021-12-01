@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 @Component
 public class HashService {
 
-    public static List<HashFormater> hashList;
+    public static HashTable hashTable;
 
     @Autowired
     private EscolaRepository escolaRepo;
@@ -33,12 +33,20 @@ public class HashService {
     private void postConstruct(){
         System.out.println(new Date() + " - Populando Hash Table em cache...");
         List<Escola> listaEscolas = escolaRepo.findAll();
-        hashList = new ArrayList<>();
+        hashTable = new HashTable();
         listaEscolas.forEach((escola) -> {
-            HashTable hash = new HashTable();
             List<Responsavel> listResp = new ResponsavelHandler().pegaRespsDaEscola(escola.getCnpj(), contRepo, escolaRepo);
-            listResp.forEach((resp) -> hash.insere(resp, contRepo));
-            hashList.add(new HashFormater(hash, escola.getCnpj()));
+            listResp.forEach((resp) -> hashTable.insere(resp, contRepo, escola.getCnpj()));
         });
+    }
+
+    public void insereEmCache(Responsavel resp, Escola escola){
+        if(resp == null || escola == null) throw new IllegalArgumentException("Responsavel: " + resp + "\nEscola: " + escola);
+        hashTable.insere(resp, contRepo, escola.getCnpj());
+    }
+
+    public void removeEmCache(Responsavel resp, Escola escola){
+        if(resp == null || escola == null) throw new IllegalArgumentException("Responsavel: " + resp + "\nEscola: " + escola);
+        hashTable.remove(resp, escola.getCnpj());
     }
 }
