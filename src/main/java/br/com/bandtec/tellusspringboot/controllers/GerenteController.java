@@ -1,5 +1,6 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
+import br.com.bandtec.tellusspringboot.domains.Contrato;
 import br.com.bandtec.tellusspringboot.domains.Escola;
 import br.com.bandtec.tellusspringboot.domains.Gerente;
 import br.com.bandtec.tellusspringboot.domains.Responsavel;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -153,5 +155,82 @@ public class GerenteController {
         return ResponseEntity.status(404).build();
     }
 
+    @CrossOrigin
+    @GetMapping("/juros")
+    public ResponseEntity getJurosTotalResponsavelEscola(@RequestParam("cnpj") String cnpj)
+    {
+        Escola escola = escolaRepo.findByCnpj(cnpj);
 
+        if(escolaRepo.existsByCnpj(cnpj))
+        {
+            List<Contrato> list = contratoRepo.findAllByFkEscola(escola);
+
+            Integer qntJuros = 0;
+
+            for (Contrato contrato : list) {
+                if (contrato.getSituacao().equals("1")) {
+                    qntJuros++;
+                }
+            }
+
+            Double jurosTotal = escolaRepo.findByCnpj(cnpj).getJuros() * qntJuros;
+
+            return ResponseEntity.status(400).body(jurosTotal);
+        }
+        else
+        {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/adesao")
+    public ResponseEntity getAdesaoEscola(@RequestParam("cnpj") String cnpj, @RequestParam("dataInicio")Date dataInicio,
+                                          @RequestParam("dataFim")Date dataFim)
+    {
+       List<Contrato> contratos = contratoRepo.findByDataInicioAndDataFim(dataInicio,dataFim);
+       List<Contrato> adesao = new ArrayList<>();
+       List<Contrato> evasao = new ArrayList<>();
+
+       Double qntAdesao = 0.0;
+       Double qntEvasao = 0.0;
+
+       for (Contrato contrato : contratos) {
+           if(contrato.getSituacao().equals("novo")) {
+               adesao.add(contrato);
+           }
+           else {
+               evasao.add(contrato);
+           }
+       }
+
+       Double percentAdesao = (qntAdesao / 100) * qntEvasao;
+
+       return ResponseEntity.status(400).body(percentAdesao);
+    }
+
+    @CrossOrigin
+    @GetMapping("/situacao")
+    public ResponseEntity getSituacaoPagamento(@RequestParam("cnpj") String cnpj, @RequestParam("dataInicio")Date dataInicio,
+                                          @RequestParam("dataFim")Date dataFim) {
+        List<Contrato> contratos = contratoRepo.findByDataInicioAndDataFim(dataInicio,dataFim);
+        List<Contrato> adesao = new ArrayList<>();
+        List<Contrato> evasao = new ArrayList<>();
+
+        double qntAdesao = 0.0;
+        double qntEvasao = 0.0;
+
+        for (Contrato contrato : contratos) {
+            if(contrato.getSituacao().equals("novo")) {
+                adesao.add(contrato);
+            }
+            else {
+                evasao.add(contrato);
+            }
+        }
+
+        Double percentAdesao = (qntAdesao / 100) * qntEvasao;
+
+        return ResponseEntity.status(400).body(percentAdesao);
+    }
 }

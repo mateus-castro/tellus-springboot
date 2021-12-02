@@ -18,12 +18,20 @@ public class S3Controller {
         this.service = amazonClient;
     }
 
+    @CrossOrigin
+    @GetMapping("/health")
+    public ResponseEntity healthCheck(){
+     return ResponseEntity.status(200).body("Running application");
+    }
+
+    @CrossOrigin
     @PostMapping("/upload")
     public ResponseEntity uploadFile(@RequestParam("file") MultipartFile file){
         System.out.println("FAZENDO UPLOAD");
         return ResponseEntity.status(201).body(service.uploadFile(file));
     }
 
+    @CrossOrigin
     @GetMapping("/download/{fileName}")
     public ResponseEntity downloadFile(@PathVariable String fileName){
         System.out.println("FAZENDO DOWNLOAD");
