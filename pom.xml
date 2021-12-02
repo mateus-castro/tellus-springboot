@@ -72,6 +72,11 @@
 <!--			<artifactId>aws-java-sdk</artifactId>-->
 <!--			<version>1.11.728</version>-->
 <!--		</dependency>-->
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>4.2.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>

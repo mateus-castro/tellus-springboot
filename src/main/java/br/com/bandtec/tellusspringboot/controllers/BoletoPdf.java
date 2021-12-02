@@ -1,88 +1,22 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
-import br.com.bandtec.tellusspringboot.domains.Aluno;
-import br.com.bandtec.tellusspringboot.domains.Contrato;
-import br.com.bandtec.tellusspringboot.domains.Pagamento;
-import br.com.bandtec.tellusspringboot.repositories.AlunoRepository;
-import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
-import br.com.bandtec.tellusspringboot.repositories.PagamentoRepository;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.FontFactory;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.itextpdf.text.*;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.pdf.*;
 
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.pdf.*;
+public class BoletoPdf {
 
-@RestController
-@RequestMapping("/pagamento")
-@Api(value = "Question")
-
-public class PagamentoController {
-    @Autowired
-    private PagamentoRepository pagRepo;
-
-    @Autowired
-    private ContratoRepository contRepo;
-
-    @Autowired
-    private AlunoRepository alunoRepo;
-
-    @ApiOperation(value = "Insere um pagamento.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Pagamento inserido no banco com sucesso."),
-            @ApiResponse(code = 400, message = "Requisição falhou.")
-    })
-    @PostMapping
-    public ResponseEntity postPagamento(@RequestBody Pagamento pagamento) {
-        try {
-            pagRepo.save(pagamento);
-            return ResponseEntity.status(201).build();
-        } catch (Error e) {
-            System.out.println("[postPagamento] Erro de requisição " + e);
-            return ResponseEntity.status(400).build();
-        }
+    public BoletoPdf() {
     }
 
-    @ApiOperation(value = "Retorna todos os pagamentos de um contrato.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Retorna uma lista de pagamentos."),
-            @ApiResponse(code = 204, message = "Não existe nenhum gerente.")
-    })
-    @GetMapping
-    public ResponseEntity getPagamentoByContrato(@RequestParam("ra") String raAluno) {
-        try {
-            Aluno aluno = alunoRepo.findAlunoByRa(raAluno);
-            Contrato contrato = contRepo.findContratoByFkAluno(aluno);
-            List<Pagamento> pagamentos = pagRepo.findAllByFkContrato(contrato);
-
-            return ResponseEntity.status(200).body(pagamentos);
-        } catch (Error e) {
-            System.out.println(e);
-            return ResponseEntity.status(400).build();
-        }
-
-    }
-
-    @GetMapping("/boleto")
-    public ResponseEntity getBoleto(@RequestBody Pagamento pagamento) {
+    public String gerarPdf() {
         Document doc = new Document();
         try {
             PdfWriter.getInstance(doc, new FileOutputStream("boleto.pdf"));
@@ -94,12 +28,14 @@ public class PagamentoController {
             PdfPTable linha3 = new PdfPTable(2);
             PdfPTable linha4 = new PdfPTable(4);
             PdfPTable linha5 = new PdfPTable(3);
-            PdfPTable linha6 = new PdfPTable(1);
+            PdfPTable linha6 = new PdfPTable(2);
+            PdfPTable linha7 = new PdfPTable(1);
 
             Font fontBody = new Font(Font.FontFamily.HELVETICA, 10.0f, Font.UNDEFINED, BaseColor.BLACK);
+            Font fontBodyBold = new Font(Font.FontFamily.HELVETICA, 10.0f, Font.BOLD, BaseColor.BLACK);
 
             // Celulas do boleto
-            PdfPCell cellCode = new PdfPCell(new Paragraph(String.format("%s", "36490.00019 00014.978100 00000.490482 7 88000000010990"), fontBody));
+            PdfPCell cellCode = new PdfPCell(new Paragraph(String.format("%s", "36490.00019 00014.978100 00000.490482 7 88000000010990"), fontBodyBold));
             PdfPCell cellLocalPagamento = new PdfPCell(new Paragraph(String.format("Local do Pagamento\n%s", "Qualquer banco até a data de vencimento."), fontBody));
             PdfPCell cellDataVencimento = new PdfPCell(new Paragraph(String.format("Vencimento\n%s", "23/12/2021"), fontBody));
             PdfPCell cellBeneficiario = new PdfPCell(new Paragraph(String.format("Beneficiário\n%s", "Tellus"), fontBody));
@@ -111,9 +47,10 @@ public class PagamentoController {
             PdfPCell cellCarteira = new PdfPCell(new Paragraph(String.format("Carteira\n%s", "102"), fontBody));
             PdfPCell cellEspecie = new PdfPCell(new Paragraph(String.format("Espécie\n%s", "R$"), fontBody));
             PdfPCell cellValor = new PdfPCell(new Paragraph(String.format("(=) Valor do Documento\n%s", "950,00"), fontBody));
-
+            PdfPCell cellName = new PdfPCell(new Paragraph(String.format("Pagador\n%s", "Lucas Mikelvin"), fontBody));
+            PdfPCell cellCpf = new PdfPCell(new Paragraph(String.format("CPF\n%s", "496.683.528-31"), fontBody));
             Image img = Image.getInstance("codebar.png");
-            img.scaleAbsolute(350f, 50f);
+            img.scaleAbsolute(350f, 40f);
 
             PdfPCell cellImage = new PdfPCell(img);
             cellImage.setPadding(1);
@@ -134,7 +71,9 @@ public class PagamentoController {
             linha5.addCell(cellCarteira);
             linha5.addCell(cellEspecie);
             linha5.addCell(cellValor);
-            linha6.addCell(cellImage);
+            linha6.addCell(cellName);
+            linha6.addCell(cellCpf);
+            linha7.addCell(cellImage);
 
             // Adicionando tabelas ao arquivo
             doc.add(linha1);
@@ -143,17 +82,20 @@ public class PagamentoController {
             doc.add(linha4);
             doc.add(linha5);
             doc.add(linha6);
+            doc.add(linha7);
 
             // Fechando documento
             doc.close();
 
+            // Abre documento
+            Desktop.getDesktop().open(new File("boleto.pdf"));
+            return "success!";
         } catch (DocumentException de) {
-            return ResponseEntity.status(400).body(de.getMessage());
+            return de.getMessage();
         } catch (FileNotFoundException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return e.getMessage();
         } catch (IOException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return e.getMessage();
         }
-        return ResponseEntity.status(200).body("foi");
     }
 }
