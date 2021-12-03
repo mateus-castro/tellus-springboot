@@ -88,18 +88,19 @@ public class ResponsavelController {
 
 
             Double valorJuros = escolaRepo.findById(contrato.getFkEscola().getId()).get().getJuros();
-            Integer qntAtrasos = 0;
-            Double valorLiquido = 0.0;
-
+            List<Metrica> lista = new ArrayList<>();
+            Metrica metrica = new Metrica();
 
             for (Pagamento pagto : listaPagtos) {
                 if (pagto.getSituacao() == 1) {
-                    qntAtrasos++;
-                    valorLiquido += (valorJuros / 100) * pagto.getValor();
+                    metrica.setJuros(valorJuros);
+                    metrica.setDataJuros(pagto.getDataVenc());
+
+                    lista.add(metrica);
                 }
             }
 
-            return ResponseEntity.status(200).body(valorLiquido);
+            return ResponseEntity.status(200).body(lista);
         }
         System.out.println("[getValorTotalDeContratoPago] Parâmetros inválidos");
         return ResponseEntity.status(404).build();
