@@ -10,6 +10,7 @@ public class Metrica
     Double juros;
     Integer qntPago;
     Integer qntAtrasado;
+    Date proxPagamento;
 
     public Double getAdesao() {
         return adesao;
@@ -57,5 +58,13 @@ public class Metrica
 
     public void setQntAtrasado(Integer qntAtrasado) {
         this.qntAtrasado = qntAtrasado;
+    }
+
+    public Date getProxPagamento() {
+        return proxPagamento;
+    }
+
+    public void setProxPagamento(Date proxPagamento) {
+        this.proxPagamento = proxPagamento;
     }
 }

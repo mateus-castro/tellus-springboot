@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @RestController
 @RequestMapping("/responsavel")
@@ -61,7 +63,7 @@ public class ResponsavelController {
 
     // gráfico de valor pago do contrato de responsável
     @CrossOrigin
-    @GetMapping("/contratos")
+    @GetMapping("/loadbar")
     public ResponseEntity getValorTotalDeContratoPago(@RequestParam("cpf") String cpf,
                                                       @RequestParam("nomeAluno") String nomeAluno) {
         if (respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)) {
@@ -79,7 +81,7 @@ public class ResponsavelController {
     }
 
     @CrossOrigin
-    @GetMapping("/juros")
+    @GetMapping("/calendario")
     public ResponseEntity getCalendario(@RequestParam("cpf") String cpf,
                                         @RequestParam("nomeAluno") String nomeAluno) {
         if (respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)) {
@@ -91,15 +93,50 @@ public class ResponsavelController {
             List<Metrica> lista = new ArrayList<>();
             Metrica metrica = new Metrica();
 
+            //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ROOT);
+            LocalDate date = LocalDate.parse("31/12/2099");
+            Date dataContrato = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
             for (Pagamento pagto : listaPagtos) {
-                if (pagto.getSituacao() == 1) {
+                if (pagto.getSituacao() == 1 && pagto.getDataVenc().after(dataContrato)) {
                     metrica.setJuros(valorJuros);
                     metrica.setDataJuros(pagto.getDataVenc());
 
                     lista.add(metrica);
                 }
             }
+            System.out.println();
+            return ResponseEntity.status(200).body(lista);
+        }
+        System.out.println("[getValorTotalDeContratoPago] Parâmetros inválidos");
+        return ResponseEntity.status(404).build();
+    }
 
+    @CrossOrigin
+    @GetMapping("/juros")
+    public ResponseEntity getJuros(@RequestParam("cpf") String cpf,
+                                        @RequestParam("nomeAluno") String nomeAluno) {
+        if (respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)) {
+            Contrato contrato = contRepo.findContratoByFkAluno(alunoRepo.findAlunoByNome(nomeAluno));
+            List<Pagamento> listaPagtos = pagRepo.findAllByFkContrato(contrato);
+
+            Double valorJuros = escolaRepo.findById(contrato.getFkEscola().getId()).get().getJuros();
+            List<Metrica> lista = new ArrayList<>();
+            Metrica metrica = new Metrica();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ROOT);
+            LocalDate date = LocalDate.parse("31/12/2099",formatter);
+            Date dataContrato = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+            for (Pagamento pagto : listaPagtos) {
+                if (pagto.getSituacao() == 1 && pagto.getDataVenc().before(dataContrato)) {
+                    metrica.setJuros(valorJuros);
+                    metrica.setProxPagamento(pagto.getDataVenc());
+
+                    lista.add(metrica);
+                }
+            }
+            System.out.println();
             return ResponseEntity.status(200).body(lista);
         }
         System.out.println("[getValorTotalDeContratoPago] Parâmetros inválidos");

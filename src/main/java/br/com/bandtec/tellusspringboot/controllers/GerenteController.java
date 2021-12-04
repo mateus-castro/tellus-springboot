@@ -117,6 +117,17 @@ public class GerenteController {
         return ResponseEntity.status(204).build();
     }
 
+    @CrossOrigin
+    @GetMapping("/teste")
+    public ResponseEntity getTeste()
+    {
+        Escola escola = new Escola();
+        escola.setId(1);
+        List<Contrato> lista = contratoRepo.findAllByFkEscola(escola);
+
+        return ResponseEntity.status(200).body(lista);
+    }
+
     @ApiOperation(value = "Faz um cadastro massivo via .csv.")
     @CrossOrigin
     @PostMapping("/csv-download")
@@ -144,7 +155,7 @@ public class GerenteController {
         if(repositoryGerente.existsByCpf(cpfGerente)) {
             byte[] fileBytes = file.getBytes();
             String arquivo = new String(fileBytes);
-            ArrayList<String> response = new GerenteHandler().insereRegistrosDeArquivo(arquivo, repositoryGerente.findByCpf(cpfGerente).getFkEscola(), respRepo, alunoRepo, contratoRepo);
+            ArrayList<String> response = new GerenteHandler().insereRegistrosDeArquivo(arquivo, repositoryGerente.findByCpf(cpfGerente).getFkEscola(), respRepo, alunoRepo, contratoRepo,pgtoRepo);
             if(response.size() > 0){
                 StringBuilder summary = new StringBuilder();
                 for (String index: response) {
@@ -188,9 +199,9 @@ public class GerenteController {
 
             Integer qntJuros = 0;
 
-            for(int i = 0; i < list.size(); i++)
+            for(Contrato contrato : list)
             {
-               if(list.get(i).getSituacao().equals(1))
+               if(contrato.getSituacao().equals(1))
                 {
                     qntJuros++;
                 }
@@ -198,7 +209,7 @@ public class GerenteController {
 
             Double jurosTotal = escolaRepo.findByCnpj(cnpj).getJuros() * qntJuros;
 
-            return ResponseEntity.status(400).body(jurosTotal);
+            return ResponseEntity.status(200).body(jurosTotal);
         }
         else
         {
@@ -208,30 +219,36 @@ public class GerenteController {
 
     @CrossOrigin
     @GetMapping("/adesao")
-    public ResponseEntity getAdesaoEscola(@RequestParam("cnpj") String cnpj, @RequestParam("dataInicio")Date dataInicio,
-                                          @RequestParam("dataFim")Date dataFim)
+    public ResponseEntity getAdesaoEscola(@RequestParam("cnpj") String cnpj)
     {
-        Integer fkEscola = escolaRepo.findByCnpj(cnpj).getId();
+       Escola escola = escolaRepo.findByCnpj(cnpj);
 
-       List<Contrato> contratos = contratoRepo.findAllByDataInicioAndDataFimAndFkEscola(dataInicio,
-               dataFim,fkEscola);
-
-       Metrica metrica = new Metrica();
+       List<Contrato> lista = contratoRepo.findAllByFkEscola(escola);
 
        Double qntAdesao = 0.0;
        Double qntEvasao = 0.0;
 
-       for (int i = 0; i >= contratos.size(); i++)
+
+
+       for (Contrato contrato: lista)
        {
-           if(contratos.get(i).getSituacao().equals("novo"))
+           if(contrato.getSituacao().equals("novo"))
            {
                qntAdesao++;
            }
-           else
+           if(contrato.getSituacao().equals("encerrado"))
            {
               qntEvasao++;
            }
        }
+
+
+
+
+       Metrica metrica = new Metrica();
+
+       metrica.setEvasao(100.0);
+       metrica.setAdesao(100.0);
 
        if(qntAdesao > qntEvasao)
        {
@@ -243,31 +260,30 @@ public class GerenteController {
            metrica.setAdesao(100 - metrica.getAdesao());
        }
 
-       return ResponseEntity.status(400).body(metrica);
+       return ResponseEntity.status(200).body(metrica);
     }
 
     @CrossOrigin
     @GetMapping("/situacao")
-    public ResponseEntity getSituacaoPagamento(@RequestParam("cnpj") String cnpj, @RequestParam("dataInicio")
-            Date dataInicio,@RequestParam("dataFim")Date dataFim)
+    public ResponseEntity getSituacaoPagamento(@RequestParam("cnpj") String cnpj)
     {
-        Integer fkEscola = escolaRepo.findByCnpj(cnpj).getId();
+        Escola escola = escolaRepo.findByCnpj(cnpj);
 
-        List<Contrato> contratos = contratoRepo.findAllByDataInicioAndDataFimAndFkEscola(dataInicio,dataFim,fkEscola);
+        List<Contrato> contratos = contratoRepo.findAllByFkEscola(escola);
         List<Pagamento> pagamentos = new ArrayList<>();
 
         Integer qntPago = 0;
         Integer qntAtrasado = 0;
 
 
-        for (int i = 0; i >= contratos.size(); i++)
+        for (Contrato contrato : contratos)
         {
-            List<Pagamento> pgto = pgtoRepo.findAllByFkContrato(contratos.get(i));
+            List<Pagamento> pgto = pgtoRepo.findAllByFkContrato(contrato);
             pagamentos.addAll(pgto);
 
-            for(int x = 0; x >= pgto.size(); x++)
+            for(Pagamento pagamento: pgto)
             {
-                if(pagamentos.get(x).getSituacao().equals("Pago") || pagamentos.get(x).getSituacao().equals("pago"))
+                if(pagamento.getSituacao().equals(1) || pagamento.getSituacao().equals(1))
                 {
                     qntPago++;
                 }
@@ -283,6 +299,6 @@ public class GerenteController {
         metrica.setQntPago(qntPago);
         metrica.setQntAtrasado(qntAtrasado);
 
-        return ResponseEntity.status(400).body(metrica);
+        return ResponseEntity.status(200).body(metrica);
     }
 }

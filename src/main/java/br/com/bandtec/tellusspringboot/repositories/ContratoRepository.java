@@ -12,7 +12,7 @@ import java.util.List;
 public interface ContratoRepository extends JpaRepository<Contrato, Integer> {
     List<Contrato> findAll();
 
-    List<Contrato> findAllByDataInicioAndDataFimAndFkEscola(Date dataInicio, Date dataFim, Integer fkEscolaId);
+    List<Contrato> findAllByDataInicioAndDataFimAndFkEscola(String dataInicio, String dataFim, Escola escola);
 
     Contrato findFirstByFkResponsavel(Responsavel responsavel);
     Contrato findContratoByFkAluno(Aluno aluno);

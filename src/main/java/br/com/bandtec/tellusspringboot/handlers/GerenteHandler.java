@@ -6,6 +6,7 @@ import br.com.bandtec.tellusspringboot.repositories.*;
 import br.com.bandtec.tellusspringboot.utils.Util;
 import br.com.bandtec.tellusspringboot.utils.hash.HashTable;
 import br.com.bandtec.tellusspringboot.utils.hash.ListaLigada;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -57,10 +58,11 @@ public class GerenteHandler {
     }
 
     // Chama a função recursiva pela primeira vez e atribui os repositórios vindo da classe controller
-    public ArrayList<String> insereRegistrosDeArquivo(String file, Escola escola, ResponsavelRepository respRepo, AlunoRepository alunoRepo, ContratoRepository contRepo) throws IOException {
+    public ArrayList<String> insereRegistrosDeArquivo(String file, Escola escola, ResponsavelRepository respRepo, AlunoRepository alunoRepo, ContratoRepository contRepo, PagamentoRepository pgtoRepo) throws IOException {
         this.respRepo = respRepo;
         this.alunoRepo = alunoRepo;
         this.contRepo = contRepo;
+        this.pgtoRepo = pgtoRepo;
         return this.leArquivo(file, escola, 0);
     }
 
@@ -196,11 +198,11 @@ public class GerenteHandler {
 
     private void registraPagamento(Contrato contrato)
     {
-        Pagamento pagamento = new Pagamento();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy",Locale.ROOT);
-        LocalDate date = LocalDate.parse(contrato.getDataInicio(),formatter);
-        LocalDate datePadrao = LocalDate.parse("31/12/2099",formatter);
+
+        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY/MM/dd",Locale.ROOT);
+        LocalDate date = LocalDate.parse(contrato.getDataInicio());
+        LocalDate datePadrao = LocalDate.parse("2099-12-31");
 
         Date dataContrato = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date dataDefault = Date.from(datePadrao.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -210,32 +212,31 @@ public class GerenteHandler {
 
         Double valor = contrato.getValor() / numContrato;
 
-        String lUUID = String.format("%040d", new BigInteger(UUID.randomUUID()
-                .toString().replace("-", ""), 16));
 
-        pagamento.setFkContrato(contrato);
-        pagamento.setTipo("Boleto");
-        pagamento.setSituacao(1);
-        pagamento.setDataVenc(dataContrato);
-        pagamento.setValor(valor);
-        pagamento.setDataPgto(dataDefault);
-        pagamento.setNumProtocolo(lUUID);
 
-        for(int i = 0; i < contrato.getNumParcelas(); i++)
+        for(int i = 1; i <= numContrato; i++)
         {
-            if(i > 0 )
-            {
+            Pagamento pagamento = new Pagamento();
+
+                String lUUID = String.format("%040d", new BigInteger(UUID.randomUUID()
+                        .toString().replace("-", ""), 16));
+
+                pagamento.setFkContrato(contrato);
+                pagamento.setTipo("Boleto");
+                pagamento.setSituacao(1);
+                pagamento.setDataVenc(dataContrato);
+                pagamento.setValor(valor);
+                pagamento.setDataPgto(dataDefault);
+                pagamento.setNumProtocolo(lUUID);
+
                 dtAdd.setTime(dataContrato);
-                dtAdd.add(Calendar.DAY_OF_MONTH,30);
+                dtAdd.add(Calendar.DAY_OF_MONTH,31);
                 dataContrato = dtAdd.getTime();
                 pagamento.setDataVenc(dataContrato);
+                pagamento.setNumProtocolo(lUUID);
+
                 pgtoRepo.save(pagamento);
             }
-            else
-            {
-                pgtoRepo.save(pagamento);
-            }
-        }
     }
 
     private String separaCampo(String registro){
