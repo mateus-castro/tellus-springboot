@@ -1,19 +1,20 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
-import br.com.bandtec.tellusspringboot.domains.Escola;
-import br.com.bandtec.tellusspringboot.domains.Gerente;
-import br.com.bandtec.tellusspringboot.domains.Responsavel;
+import br.com.bandtec.tellusspringboot.domains.*;
 import br.com.bandtec.tellusspringboot.handlers.GerenteHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
 import br.com.bandtec.tellusspringboot.utils.Util;
 import io.swagger.annotations.*;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.spring.web.json.Json;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,6 +39,8 @@ public class GerenteController {
     @Autowired
     private EscolaRepository escolaRepo;
 
+    @Autowired
+    private PagamentoRepository pgtoRepo;
 
     @ApiOperation(value = "Retorna todos o gerentes referentes a uma escola.")
     @ApiResponses(value = {
@@ -173,4 +176,113 @@ public class GerenteController {
         return ResponseEntity.status(404).build();
     }
 
+    @CrossOrigin
+    @GetMapping("/juros")
+    public ResponseEntity getJurosTotalResponsavelEscola(@RequestParam("cnpj") String cnpj)
+    {
+        Escola escola = escolaRepo.findByCnpj(cnpj);
+
+        if(escolaRepo.existsByCnpj(cnpj))
+        {
+            List<Contrato> list = contratoRepo.findAllByFkEscola(escola);
+
+            Integer qntJuros = 0;
+
+            for(int i = 0; i < list.size(); i++)
+            {
+               if(list.get(i).getSituacao().equals(1))
+                {
+                    qntJuros++;
+                }
+            }
+
+            Double jurosTotal = escolaRepo.findByCnpj(cnpj).getJuros() * qntJuros;
+
+            return ResponseEntity.status(400).body(jurosTotal);
+        }
+        else
+        {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/adesao")
+    public ResponseEntity getAdesaoEscola(@RequestParam("cnpj") String cnpj, @RequestParam("dataInicio")Date dataInicio,
+                                          @RequestParam("dataFim")Date dataFim)
+    {
+        Integer fkEscola = escolaRepo.findByCnpj(cnpj).getId();
+
+       List<Contrato> contratos = contratoRepo.findAllByDataInicioAndDataFimAndFkEscola(dataInicio,
+               dataFim,fkEscola);
+
+       Metrica metrica = new Metrica();
+
+       Double qntAdesao = 0.0;
+       Double qntEvasao = 0.0;
+
+       for (int i = 0; i >= contratos.size(); i++)
+       {
+           if(contratos.get(i).getSituacao().equals("novo"))
+           {
+               qntAdesao++;
+           }
+           else
+           {
+              qntEvasao++;
+           }
+       }
+
+       if(qntAdesao > qntEvasao)
+       {
+           metrica.setAdesao((qntAdesao / 100) * qntEvasao);
+           metrica.setEvasao(100 - metrica.getAdesao());
+       }
+       else{
+           metrica.setEvasao((qntEvasao / 100) * qntAdesao);
+           metrica.setAdesao(100 - metrica.getAdesao());
+       }
+
+       return ResponseEntity.status(400).body(metrica);
+    }
+
+    @CrossOrigin
+    @GetMapping("/situacao")
+    public ResponseEntity getSituacaoPagamento(@RequestParam("cnpj") String cnpj, @RequestParam("dataInicio")
+            Date dataInicio,@RequestParam("dataFim")Date dataFim)
+    {
+        Integer fkEscola = escolaRepo.findByCnpj(cnpj).getId();
+
+        List<Contrato> contratos = contratoRepo.findAllByDataInicioAndDataFimAndFkEscola(dataInicio,dataFim,fkEscola);
+        List<Pagamento> pagamentos = new ArrayList<>();
+
+        Integer qntPago = 0;
+        Integer qntAtrasado = 0;
+
+
+        for (int i = 0; i >= contratos.size(); i++)
+        {
+            List<Pagamento> pgto = pgtoRepo.findAllByFkContrato(contratos.get(i));
+            pagamentos.addAll(pgto);
+
+            for(int x = 0; x >= pgto.size(); x++)
+            {
+                if(pagamentos.get(x).getSituacao().equals("Pago") || pagamentos.get(x).getSituacao().equals("pago"))
+                {
+                    qntPago++;
+                }
+                else
+                {
+                    qntAtrasado++;
+                }
+            }
+        }
+
+        Metrica metrica = new Metrica();
+
+        metrica.setQntPago(qntPago);
+        metrica.setQntAtrasado(qntAtrasado);
+
+        return ResponseEntity.status(400).body(metrica);
+    }
 }

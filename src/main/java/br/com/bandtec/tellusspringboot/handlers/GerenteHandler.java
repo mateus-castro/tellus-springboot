@@ -2,16 +2,17 @@ package br.com.bandtec.tellusspringboot.handlers;
 
 
 import br.com.bandtec.tellusspringboot.domains.*;
-import br.com.bandtec.tellusspringboot.repositories.AlunoRepository;
-import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
-import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
-import br.com.bandtec.tellusspringboot.repositories.ResponsavelRepository;
+import br.com.bandtec.tellusspringboot.repositories.*;
 import br.com.bandtec.tellusspringboot.utils.Util;
 import br.com.bandtec.tellusspringboot.utils.hash.HashTable;
 import br.com.bandtec.tellusspringboot.utils.hash.ListaLigada;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
@@ -22,6 +23,8 @@ public class GerenteHandler {
     private AlunoRepository alunoRepo;
 
     private ContratoRepository contRepo;
+
+    private PagamentoRepository pgtoRepo;
 
     // Função recursiva que realiza a leitura dos registros
     private ArrayList<String> leArquivo(String file, Escola escola, int cont) throws IOException {
@@ -179,11 +182,59 @@ public class GerenteHandler {
             novoContrato.setDataInicio(dataInicio);
             novoContrato.setSituacao(situacao);
 
+
+
             contRepo.save(novoContrato);
-            return "";
+            registraPagamento(novoContrato);
+
+            return  "";
         } catch (Exception e){
             System.out.println(e);
             return "Registro " + nReg + ": Erro ao inserir novo [Contrato] no banco.";
+        }
+    }
+
+    private void registraPagamento(Contrato contrato)
+    {
+        Pagamento pagamento = new Pagamento();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy",Locale.ROOT);
+        LocalDate date = LocalDate.parse(contrato.getDataInicio(),formatter);
+        LocalDate datePadrao = LocalDate.parse("31/12/2099",formatter);
+
+        Date dataContrato = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date dataDefault = Date.from(datePadrao.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Calendar dtAdd = Calendar.getInstance();
+
+        Integer numContrato = contrato.getNumParcelas();
+
+        Double valor = contrato.getValor() / numContrato;
+
+        String lUUID = String.format("%040d", new BigInteger(UUID.randomUUID()
+                .toString().replace("-", ""), 16));
+
+        pagamento.setFkContrato(contrato);
+        pagamento.setTipo("Boleto");
+        pagamento.setSituacao(1);
+        pagamento.setDataVenc(dataContrato);
+        pagamento.setValor(valor);
+        pagamento.setDataPgto(dataDefault);
+        pagamento.setNumProtocolo(lUUID);
+
+        for(int i = 0; i < contrato.getNumParcelas(); i++)
+        {
+            if(i > 0 )
+            {
+                dtAdd.setTime(dataContrato);
+                dtAdd.add(Calendar.DAY_OF_MONTH,30);
+                dataContrato = dtAdd.getTime();
+                pagamento.setDataVenc(dataContrato);
+                pgtoRepo.save(pagamento);
+            }
+            else
+            {
+                pgtoRepo.save(pagamento);
+            }
         }
     }
 

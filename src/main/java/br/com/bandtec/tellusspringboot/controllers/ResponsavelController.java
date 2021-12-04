@@ -29,17 +29,17 @@ public class ResponsavelController {
 
     @Autowired
     private ContratoRepository contRepo;
-    
+
     @Autowired
     private PagamentoRepository pagRepo;
 
     @CrossOrigin
     @GetMapping
-    public ResponseEntity getAllRespOfEscola(@RequestParam("cnpj") String cnpj){
-        if(escolaRepo.existsByCnpj(cnpj)){
+    public ResponseEntity getAllRespOfEscola(@RequestParam("cnpj") String cnpj) {
+        if (escolaRepo.existsByCnpj(cnpj)) {
             List<Responsavel> listaResp = new ResponsavelHandler().pegaRespsDaEscola(cnpj, contRepo, escolaRepo);
             return ResponseEntity.status(200).body(listaResp);
-        } else{
+        } else {
             System.out.println("[getAllRespOfEscola] Escola especificada não encontrada");
             return ResponseEntity.status(204).build();
         }
@@ -47,11 +47,11 @@ public class ResponsavelController {
 
     @CrossOrigin
     @GetMapping("/dependentes")
-    public ResponseEntity getDependentesPorResp(@RequestParam("cpf") String cpf){
-        if(respRepo.existsByCpf(cpf)){
+    public ResponseEntity getDependentesPorResp(@RequestParam("cpf") String cpf) {
+        if (respRepo.existsByCpf(cpf)) {
             List<Contrato> contratoList = contRepo.findAllByFkResponsavel(respRepo.findResponsavelByCpf(cpf));
             List<Aluno> alunoList = new ArrayList<Aluno>();
-            for ( Contrato contrato : contratoList ) {
+            for (Contrato contrato : contratoList) {
                 alunoList.add(contrato.getFkAluno());
             }
             return ResponseEntity.status(200).body(alunoList);
@@ -63,15 +63,15 @@ public class ResponsavelController {
     @CrossOrigin
     @GetMapping("/contratos")
     public ResponseEntity getValorTotalDeContratoPago(@RequestParam("cpf") String cpf,
-                                                      @RequestParam("nomeAluno") String nomeAluno){
-        if(respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)){
+                                                      @RequestParam("nomeAluno") String nomeAluno) {
+        if (respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)) {
             Contrato contrato = contRepo.findContratoByFkAluno(alunoRepo.findAlunoByNome(nomeAluno));
             List<Pagamento> listaPagtos = pagRepo.findAllByFkContrato(contrato);
             Double res = 0.0;
-            for ( Pagamento pagto : listaPagtos ) {
+            for (Pagamento pagto : listaPagtos) {
                 res += pagto.getValor();
             }
-            res = ( 100 * res ) / contrato.getValor();
+            res = (100 * res) / contrato.getValor();
             return ResponseEntity.status(200).body(res);
         }
         System.out.println("[getValorTotalDeContratoPago] Parâmetros inválidos");
@@ -79,31 +79,30 @@ public class ResponsavelController {
     }
 
     @CrossOrigin
-    @PostMapping
-    public ResponseEntity postResponsavel(@RequestBody Responsavel responsavel) {
-        respRepo.save(responsavel);
-        return ResponseEntity.status(201).build();
-    }
+    @GetMapping("/juros")
+    public ResponseEntity getCalendario(@RequestParam("cpf") String cpf,
+                                        @RequestParam("nomeAluno") String nomeAluno) {
+        if (respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)) {
+            Contrato contrato = contRepo.findContratoByFkAluno(alunoRepo.findAlunoByNome(nomeAluno));
+            List<Pagamento> listaPagtos = pagRepo.findAllByFkContrato(contrato);
 
-    @CrossOrigin
-    @DeleteMapping
-    public ResponseEntity deleteResponsavel(@RequestParam("cpf") String cpf) {
-        if (respRepo.existsByCpf(cpf)) {
-            respRepo.deleteByCpf(cpf);
-            return ResponseEntity.status(200).body("Responsavel deletado com sucesso");
-        }
-        return ResponseEntity.status(404).body("Responsavel com o CPF: " + cpf + "Não foi encontrado");
-    }
 
-    @PutMapping
-    public ResponseEntity updateResponsavel(@RequestBody Responsavel newResp) {
-        if (respRepo.existsByCpf(newResp.getCpf())) {
-            Responsavel oldResp = respRepo.findResponsavelByCpf(newResp.getCpf());
-            respRepo.deleteByCpf(oldResp.getCpf());
-            respRepo.save(newResp);
-            return ResponseEntity.status(200).build();
+            Double valorJuros = escolaRepo.findById(contrato.getFkEscola().getId()).get().getJuros();
+            List<Metrica> lista = new ArrayList<>();
+            Metrica metrica = new Metrica();
+
+            for (Pagamento pagto : listaPagtos) {
+                if (pagto.getSituacao() == 1) {
+                    metrica.setJuros(valorJuros);
+                    metrica.setDataJuros(pagto.getDataVenc());
+
+                    lista.add(metrica);
+                }
+            }
+
+            return ResponseEntity.status(200).body(lista);
         }
-        return ResponseEntity.status(204).body("Responsável não encontrado.");
+        System.out.println("[getValorTotalDeContratoPago] Parâmetros inválidos");
+        return ResponseEntity.status(404).build();
     }
 }
-

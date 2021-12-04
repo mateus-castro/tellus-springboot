@@ -12,10 +12,11 @@ public class Pagamento {
     private Contrato fkContrato;
 
     private String tipo;
-    private String dataVenc;
+    private Date dataVenc;
     private Double valor;
     private Integer situacao;
     private Date dataPgto;
+    private String numProtocolo;
 
     public Integer getId() {
         return id;
@@ -41,11 +42,11 @@ public class Pagamento {
         this.tipo = tipo;
     }
 
-    public String getDataVenc() {
+    public Date getDataVenc() {
         return dataVenc;
     }
 
-    public void setDataVenc(String dataVenc) {
+    public void setDataVenc(Date dataVenc) {
         this.dataVenc = dataVenc;
     }
 
@@ -71,5 +72,13 @@ public class Pagamento {
 
     public void setDataPgto(Date dataPgto) {
         this.dataPgto = dataPgto;
+    }
+
+    public String getNumProtocolo() {
+        return numProtocolo;
+    }
+
+    public void setNumProtocolo(String numProtocolo) {
+        this.numProtocolo = numProtocolo;
     }
 }
