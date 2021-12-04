@@ -13,6 +13,7 @@ public interface ContratoRepository extends JpaRepository<Contrato, Integer> {
     List<Contrato> findAll();
 
     List<Contrato> findAllByDataInicioAndDataFimAndFkEscola(String dataInicio, String dataFim, Escola escola);
+    List<Contrato> findAllByFkEscolaAndSituacao(Escola escola, String situacao);
 
     Contrato findFirstByFkResponsavel(Responsavel responsavel);
     Contrato findContratoByFkAluno(Aluno aluno);

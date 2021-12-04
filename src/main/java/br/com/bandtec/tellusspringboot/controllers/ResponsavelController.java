@@ -68,15 +68,17 @@ public class ResponsavelController {
                                                       @RequestParam("nomeAluno") String nomeAluno) {
         if (respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)) {
             Contrato contrato = contRepo.findContratoByFkAluno(alunoRepo.findAlunoByNome(nomeAluno));
+
             List<Pagamento> listaPagtos = pagRepo.findAllByFkContrato(contrato);
             Double res = 0.0;
+
             for (Pagamento pagto : listaPagtos) {
                 res += pagto.getValor();
             }
             res = (100 * res) / contrato.getValor();
             return ResponseEntity.status(200).body(res);
         }
-        System.out.println("[getValorTotalDeContratoPago] Parâmetros inválidos");
+
         return ResponseEntity.status(404).build();
     }
 
@@ -91,14 +93,17 @@ public class ResponsavelController {
 
             Double valorJuros = escolaRepo.findById(contrato.getFkEscola().getId()).get().getJuros();
             List<Metrica> lista = new ArrayList<>();
-            Metrica metrica = new Metrica();
 
             //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ROOT);
-            LocalDate date = LocalDate.parse("31/12/2099");
-            Date dataContrato = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            //LocalDate date = LocalDate.parse("2099/12/2099");
+            Date dataContrato = new Date();
+            dataContrato = Date.from(dataContrato.toInstant());
 
             for (Pagamento pagto : listaPagtos) {
-                if (pagto.getSituacao() == 1 && pagto.getDataVenc().after(dataContrato)) {
+                Metrica metrica = new Metrica();
+
+                if (pagto.getSituacao() == 1 && pagto.getDataVenc().before(dataContrato)) {
+
                     metrica.setJuros(valorJuros);
                     metrica.setDataJuros(pagto.getDataVenc());
 
@@ -108,7 +113,7 @@ public class ResponsavelController {
             System.out.println();
             return ResponseEntity.status(200).body(lista);
         }
-        System.out.println("[getValorTotalDeContratoPago] Parâmetros inválidos");
+
         return ResponseEntity.status(404).build();
     }
 
@@ -139,7 +144,7 @@ public class ResponsavelController {
             System.out.println();
             return ResponseEntity.status(200).body(lista);
         }
-        System.out.println("[getValorTotalDeContratoPago] Parâmetros inválidos");
+
         return ResponseEntity.status(404).build();
     }
 }

@@ -195,16 +195,20 @@ public class GerenteController {
 
         if(escolaRepo.existsByCnpj(cnpj))
         {
-            List<Contrato> list = contratoRepo.findAllByFkEscola(escola);
+            List<Contrato> lista = contratoRepo.findAllByFkEscola(escola);
+            List<Pagamento> listaPgto = new ArrayList<>();
 
             Integer qntJuros = 0;
 
-            for(Contrato contrato : list)
+            for(int i = 0; i < lista.size(); i++)
             {
-               if(contrato.getSituacao().equals(1))
-                {
-                    qntJuros++;
-                }
+               listaPgto = pgtoRepo.findAllByFkContrato(lista.get(i));
+
+               for(Pagamento pagamento: listaPgto) {
+                   if (pagamento.getSituacao() == 1) {
+                       qntJuros++;
+                   }
+               }
             }
 
             Double jurosTotal = escolaRepo.findByCnpj(cnpj).getJuros() * qntJuros;
@@ -227,6 +231,7 @@ public class GerenteController {
 
        Double qntAdesao = 0.0;
        Double qntEvasao = 0.0;
+       Double total = 0.0;
 
 
 
@@ -234,31 +239,23 @@ public class GerenteController {
        {
            if(contrato.getSituacao().equals("novo"))
            {
-               qntAdesao++;
+              qntAdesao++;
            }
            if(contrato.getSituacao().equals("encerrado"))
            {
               qntEvasao++;
            }
+           else
+           {
+              total++;
+           }
        }
-
-
-
 
        Metrica metrica = new Metrica();
 
-       metrica.setEvasao(100.0);
-       metrica.setAdesao(100.0);
+       metrica.setAdesao((qntAdesao / total) * 100);
+       metrica.setEvasao((qntEvasao / total) * 100);
 
-       if(qntAdesao > qntEvasao)
-       {
-           metrica.setAdesao((qntAdesao / 100) * qntEvasao);
-           metrica.setEvasao(100 - metrica.getAdesao());
-       }
-       else{
-           metrica.setEvasao((qntEvasao / 100) * qntAdesao);
-           metrica.setAdesao(100 - metrica.getAdesao());
-       }
 
        return ResponseEntity.status(200).body(metrica);
     }
