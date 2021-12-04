@@ -1,11 +1,7 @@
 package br.com.bandtec.tellusspringboot.controllers;
 
-import br.com.bandtec.tellusspringboot.domains.Aluno;
-import br.com.bandtec.tellusspringboot.domains.Contrato;
-import br.com.bandtec.tellusspringboot.domains.Pagamento;
-import br.com.bandtec.tellusspringboot.repositories.AlunoRepository;
-import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
-import br.com.bandtec.tellusspringboot.repositories.PagamentoRepository;
+import br.com.bandtec.tellusspringboot.domains.*;
+import br.com.bandtec.tellusspringboot.repositories.*;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.FontFactory;
@@ -45,6 +41,13 @@ public class PagamentoController {
     @Autowired
     private AlunoRepository alunoRepo;
 
+    @Autowired
+    private EscolaRepository escolaRepository;
+
+    @Autowired
+    private ResponsavelRepository responsavelRepository;
+
+
     @ApiOperation(value = "Insere um pagamento.")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Pagamento inserido no banco com sucesso."),
@@ -82,7 +85,10 @@ public class PagamentoController {
     }
 
     @GetMapping("/boleto")
-    public ResponseEntity getBoleto(@RequestBody Pagamento pagamento) {
+    public ResponseEntity getBoleto(@RequestBody Pagamento pagamento, @RequestBody String cnpj, @RequestBody String cpf) {
+        Responsavel responsavel = responsavelRepository.findResponsavelByCpf(cpf);
+        Escola escola = escolaRepository.findByCnpj(cnpj);
+
         Document doc = new Document();
         try {
             PdfWriter.getInstance(doc, new FileOutputStream("boleto.pdf"));
@@ -94,15 +100,17 @@ public class PagamentoController {
             PdfPTable linha3 = new PdfPTable(2);
             PdfPTable linha4 = new PdfPTable(4);
             PdfPTable linha5 = new PdfPTable(3);
-            PdfPTable linha6 = new PdfPTable(1);
+            PdfPTable linha6 = new PdfPTable(2);
+            PdfPTable linha7 = new PdfPTable(1);
 
             Font fontBody = new Font(Font.FontFamily.HELVETICA, 10.0f, Font.UNDEFINED, BaseColor.BLACK);
+            Font fontBodyBold = new Font(Font.FontFamily.HELVETICA, 10.0f, Font.BOLD, BaseColor.BLACK);
 
             // Celulas do boleto
-            PdfPCell cellCode = new PdfPCell(new Paragraph(String.format("%s", "36490.00019 00014.978100 00000.490482 7 88000000010990"), fontBody));
+            PdfPCell cellCode = new PdfPCell(new Paragraph(String.format("%s", "36490.00019 00014.978100 00000.490482 7 88000000010990"), fontBodyBold));
             PdfPCell cellLocalPagamento = new PdfPCell(new Paragraph(String.format("Local do Pagamento\n%s", "Qualquer banco até a data de vencimento."), fontBody));
-            PdfPCell cellDataVencimento = new PdfPCell(new Paragraph(String.format("Vencimento\n%s", "23/12/2021"), fontBody));
-            PdfPCell cellBeneficiario = new PdfPCell(new Paragraph(String.format("Beneficiário\n%s", "Tellus"), fontBody));
+            PdfPCell cellDataVencimento = new PdfPCell(new Paragraph(String.format("Vencimento\n%s", pagamento.getDataVenc()), fontBody));
+            PdfPCell cellBeneficiario = new PdfPCell(new Paragraph(String.format("Beneficiário\n%s", escola.getRazaoSocial()), fontBody));
             PdfPCell cellAgencia = new PdfPCell(new Paragraph(String.format("Agência / Código do Beneficiário\n%s", "4218/1234567"), fontBody));
             PdfPCell cellNumDoc = new PdfPCell(new Paragraph(String.format("Número Documento\n%s", "54646"), fontBody));
             PdfPCell cellEspecieDoc = new PdfPCell(new Paragraph(String.format("Espécie Doc.\n%s", "ND"), fontBody));
@@ -110,10 +118,11 @@ public class PagamentoController {
             PdfPCell cellNumDocumento = new PdfPCell(new Paragraph(String.format("Nosso Número\n%s", "0000089-2"), fontBody));
             PdfPCell cellCarteira = new PdfPCell(new Paragraph(String.format("Carteira\n%s", "102"), fontBody));
             PdfPCell cellEspecie = new PdfPCell(new Paragraph(String.format("Espécie\n%s", "R$"), fontBody));
-            PdfPCell cellValor = new PdfPCell(new Paragraph(String.format("(=) Valor do Documento\n%s", "950,00"), fontBody));
-
+            PdfPCell cellValor = new PdfPCell(new Paragraph(String.format("(=) Valor do Documento\n%s", pagamento.getValor()), fontBody));
+            PdfPCell cellName = new PdfPCell(new Paragraph(String.format("Pagador\n%s", responsavel.getNome()), fontBody));
+            PdfPCell cellCpf = new PdfPCell(new Paragraph(String.format("CPF\n%s", responsavel.getCpf()), fontBody));
             Image img = Image.getInstance("codebar.png");
-            img.scaleAbsolute(350f, 50f);
+            img.scaleAbsolute(350f, 40f);
 
             PdfPCell cellImage = new PdfPCell(img);
             cellImage.setPadding(1);
@@ -134,7 +143,9 @@ public class PagamentoController {
             linha5.addCell(cellCarteira);
             linha5.addCell(cellEspecie);
             linha5.addCell(cellValor);
-            linha6.addCell(cellImage);
+            linha6.addCell(cellName);
+            linha6.addCell(cellCpf);
+            linha7.addCell(cellImage);
 
             // Adicionando tabelas ao arquivo
             doc.add(linha1);
@@ -143,9 +154,14 @@ public class PagamentoController {
             doc.add(linha4);
             doc.add(linha5);
             doc.add(linha6);
+            doc.add(linha7);
 
             // Fechando documento
             doc.close();
+
+            // Abre documento
+            Desktop.getDesktop().open(new File("boleto.pdf"));
+            return ResponseEntity.status(200).body("test");
 
         } catch (DocumentException de) {
             return ResponseEntity.status(400).body(de.getMessage());
@@ -154,6 +170,5 @@ public class PagamentoController {
         } catch (IOException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
-        return ResponseEntity.status(200).body("foi");
     }
 }
