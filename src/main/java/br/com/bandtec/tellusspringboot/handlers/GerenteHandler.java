@@ -3,6 +3,7 @@ package br.com.bandtec.tellusspringboot.handlers;
 
 import br.com.bandtec.tellusspringboot.domains.*;
 import br.com.bandtec.tellusspringboot.repositories.*;
+import br.com.bandtec.tellusspringboot.services.HashService;
 import br.com.bandtec.tellusspringboot.utils.Util;
 import br.com.bandtec.tellusspringboot.utils.hash.HashTable;
 import br.com.bandtec.tellusspringboot.utils.hash.ListaLigada;
