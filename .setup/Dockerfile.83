@@ -8,4 +8,4 @@ WORKDIR /usr/src/backend
 COPY ./target/*.jar /usr/src/backend
 
 EXPOSE 8083
-CMD ["java","-Dmaven.test.skip=true", "--server.port=8083","-jar","tellus-springboot-0.0.1-SNAPSHOT.jar"]
+CMD ["java","-Dmaven.test.skip=true", "-Dserver.port=8083","-jar","tellus-springboot-0.0.1-SNAPSHOT.jar"]
