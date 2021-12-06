@@ -12,7 +12,6 @@ import java.util.Locale;
 
 public class HashTable {
     ListaLigada[] hash;
-    int cont = 0;
     String[] caracteres = {
             "a","b","c","d",
             "e","f","g","h",
@@ -20,7 +19,8 @@ public class HashTable {
             "m","n","o","p",
             "q","r","s","t",
             "u","v","w","x",
-            "y","z"
+            "y","z"," ","ç",
+            "-","ã","á","é"
     };
 
     public HashTable(){
@@ -31,6 +31,28 @@ public class HashTable {
     }
 
     public int funcaoHash(String resp){
+        switch(resp.substring(0, 1).toLowerCase(Locale.ROOT)){
+            case " ":
+                return 26;
+                break;
+            case "ç":
+                return 27;
+                break;
+            case "-":
+                return 28;
+                break;
+            case "ã":
+                return 29;
+                break;
+            case "á":
+                return 30;
+                break;
+            case "é":
+                return 31;
+                break;
+            default:
+                break;
+        }
         return resp.toLowerCase(Locale.ROOT).toCharArray()[0]-97;
     }
 
