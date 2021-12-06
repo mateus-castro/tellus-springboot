@@ -71,13 +71,14 @@ public class PagamentoController {
             @ApiResponse(code = 200, message = "Retorna uma lista de pagamentos."),
             @ApiResponse(code = 204, message = "Não existe nenhum gerente.")
     })
+
+    @CrossOrigin
     @GetMapping
     public ResponseEntity getPagamentoByContrato(@RequestParam("ra") String raAluno) {
         try {
             Aluno aluno = alunoRepo.findAlunoByRa(raAluno);
             Contrato contrato = contRepo.findContratoByFkAluno(aluno);
             List<Pagamento> pagamentos = pagRepo.findAllByFkContrato(contrato);
-
             return ResponseEntity.status(200).body(pagamentos);
         } catch (Error e) {
             System.out.println(e);
@@ -89,11 +90,16 @@ public class PagamentoController {
     @GetMapping("/download/boleto")
     @ResponseBody
     public ResponseEntity getBoleto(
-            @RequestBody Pagamento pagamento, @RequestBody String cnpj, @RequestBody String cpf)
+            @RequestParam("cpf") String cpf,
+            @RequestParam("valor") String valor,
+            @RequestParam("data") String data,
+            @RequestParam("protocolo") String protocolo,
+            @RequestParam("nomeEscola") String nomeEscola,
+            @RequestParam("nomeResponsavel") String nomeResponsavel)
             throws FileNotFoundException {
         String nameBoleto = String.format("Boleto-462cd0f0-557e-11ec-bf63-0242ac130002.pdf");
         PagamentoHandler pagamentoHandler = new PagamentoHandler();
-        pagamentoHandler.gerarBoleto(cpf, cnpj, pagamento, nameBoleto);
+        pagamentoHandler.gerarBoleto(cpf, valor, data, protocolo, nomeEscola, nomeResponsavel, nameBoleto);
 
         File file = new File(nameBoleto);
         HttpHeaders headers = new HttpHeaders();
@@ -109,27 +115,5 @@ public class PagamentoController {
                 .contentLength(file.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
-    }
-
-    @GetMapping("/teste-download")
-    @ResponseBody
-    public ResponseEntity getBoletoMockado() throws FileNotFoundException {
-        PagamentoHandler pagamentoHandler = new PagamentoHandler();
-        String nameBoleto = String.format("Boleto-462cd0f0-557e-11ec-bf63-0242ac130002.pdf");
-        pagamentoHandler.gerarBoletoMockado(nameBoleto);
-        File file = new File(nameBoleto);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
-        headers.add("Content-Type", "application/pdf");
-        headers.add("Content-Disposition", String.format("attachment; filename=%s", nameBoleto));
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(file.length())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
-
     }
 }
