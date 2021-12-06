@@ -55,6 +55,8 @@ public class PagamentoController {
             @ApiResponse(code = 201, message = "Pagamento inserido no banco com sucesso."),
             @ApiResponse(code = 400, message = "Requisição falhou.")
     })
+
+    @CrossOrigin
     @PostMapping
     public ResponseEntity postPagamento(@RequestBody Pagamento pagamento) {
         try {
@@ -87,6 +89,12 @@ public class PagamentoController {
 
     }
 
+    @ApiOperation(value = "Retorna arquivo PDF com dados do pagamento (boleto).")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Retorna um arquivo PDF."),
+    })
+
+    @CrossOrigin
     @GetMapping("/download/boleto")
     @ResponseBody
     public ResponseEntity getBoleto(
