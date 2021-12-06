@@ -118,7 +118,7 @@ public class ResponsavelController {
     }
 
     @CrossOrigin
-    @GetMapping("/juros")
+    @GetMapping("/calendario")
     public ResponseEntity getCalendario(@RequestParam("cpf") String cpf,
                                         @RequestParam("nomeAluno") String nomeAluno) {
         if (respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)) {
@@ -155,7 +155,7 @@ public class ResponsavelController {
     @CrossOrigin
     @GetMapping("/juros")
     public ResponseEntity getJuros(@RequestParam("cpf") String cpf,
-                                        @RequestParam("nomeAluno") String nomeAluno) {
+                                   @RequestParam("nomeAluno") String nomeAluno) {
         if (respRepo.existsByCpf(cpf) && alunoRepo.existsAlunoByNome(nomeAluno)) {
             Contrato contrato = contRepo.findContratoByFkAluno(alunoRepo.findAlunoByNome(nomeAluno));
             List<Pagamento> listaPagtos = pagRepo.findAllByFkContrato(contrato);
