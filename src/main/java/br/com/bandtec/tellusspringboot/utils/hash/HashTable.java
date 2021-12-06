@@ -34,26 +34,19 @@ public class HashTable {
         switch(resp.substring(0, 1).toLowerCase(Locale.ROOT)){
             case " ":
                 return 26;
-                break;
             case "ç":
                 return 27;
-                break;
             case "-":
                 return 28;
-                break;
             case "ã":
                 return 29;
-                break;
             case "á":
                 return 30;
-                break;
             case "é":
                 return 31;
-                break;
             default:
-                break;
+                return resp.toLowerCase(Locale.ROOT).toCharArray()[0]-97;
         }
-        return resp.toLowerCase(Locale.ROOT).toCharArray()[0]-97;
     }
 
     public void insere(Responsavel resp, ContratoRepository contratoRepo, String cnpj){
@@ -72,5 +65,13 @@ public class HashTable {
 
     public void remove(Responsavel resp, String cnpj) {
         hash[this.funcaoHash(resp.getNome())].removeNode(resp.getCpf(), cnpj);
+    }
+
+    public List<ResponsavelCacheModel> retornaTotalLista(String cnpj){
+        List<ResponsavelCacheModel> completeList = new ArrayList<>();
+        for(ListaLigada lista : hash){
+            completeList.addAll(lista.converteLista());
+        }
+        return completeList;
     }
 }

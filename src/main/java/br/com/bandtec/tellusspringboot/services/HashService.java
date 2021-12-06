@@ -41,12 +41,19 @@ public class HashService {
     }
 
     public void insereEmCache(Responsavel resp, Escola escola){
-        if(resp == null || escola == null) throw new IllegalArgumentException("Responsavel: " + resp + "\nEscola: " + escola);
+        if(resp == null || escola == null) throw new IllegalArgumentException("Responsavel ou Escola nulos");
         hashTable.insere(resp, contRepo, escola.getCnpj());
     }
 
     public void removeEmCache(Responsavel resp, Escola escola){
-        if(resp == null || escola == null) throw new IllegalArgumentException("Responsavel: " + resp + "\nEscola: " + escola);
+        if(resp == null || escola == null) throw new IllegalArgumentException("Responsavel ou Escola nulos");
         hashTable.remove(resp, escola.getCnpj());
+    }
+
+    public void retornaListaTotal(String cnpj){
+        Escola escola = escolaRepo.findByCnpj(cnpj);
+        if(cnpj == null) throw new IllegalArgumentException("Escola está nula");
+        hashTable.retornaTotalLista(cnpj);
+
     }
 }

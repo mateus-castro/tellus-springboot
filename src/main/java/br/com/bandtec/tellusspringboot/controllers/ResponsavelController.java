@@ -52,6 +52,17 @@ public class ResponsavelController {
     }
 
     @CrossOrigin
+    @GetMapping("/cache")
+    public ResponseEntity getAllRespOfEscolaCache(@RequestParam("cnpj") String cnpj) {
+        if (escolaRepo.existsByCnpj(cnpj)) {
+            return ResponseEntity.status(200).body(HashService.hashTable.retornaTotalLista(cnpj));
+        } else {
+            System.out.println("[getAllRespOfEscola] Escola especificada não encontrada");
+            return ResponseEntity.status(204).build();
+        }
+    }
+
+    @CrossOrigin
     @GetMapping("/dependentes")
     public ResponseEntity getDependentesPorResp(@RequestParam("cpf") String cpf) {
         if (respRepo.existsByCpf(cpf)) {
