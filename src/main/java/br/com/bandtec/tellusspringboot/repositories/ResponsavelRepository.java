@@ -4,11 +4,13 @@ import br.com.bandtec.tellusspringboot.domains.Responsavel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface ResponsavelRepository extends JpaRepository<Responsavel, Integer> {
     Responsavel findResponsavelByEmailAndSenha(String email, String senha);
     Responsavel findResponsavelByCpf(String cpf);
+    Optional<Responsavel> findResponsavelByEmail(String email);
     List<Responsavel> findResponsavelsByNome(String nome);
 
     boolean existsByEmailAndSenha(String email, String senha);

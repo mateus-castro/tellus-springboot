@@ -1,10 +1,17 @@
 package br.com.bandtec.tellusspringboot.utils.hash;
 
+import br.com.bandtec.tellusspringboot.domains.Responsavel;
+import br.com.bandtec.tellusspringboot.domains.ResponsavelCacheModel;
+import br.com.bandtec.tellusspringboot.repositories.ContratoRepository;
+import br.com.bandtec.tellusspringboot.repositories.EscolaRepository;
+import br.com.bandtec.tellusspringboot.services.HashService;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class HashTable {
-    ArrayList<ListaLigada> hash;
+    ListaLigada[] hash;
     int cont = 0;
     String[] caracteres = {
             "a","b","c","d",
@@ -13,43 +20,35 @@ public class HashTable {
             "m","n","o","p",
             "q","r","s","t",
             "u","v","w","x",
-            "y","z","ç","-",
-            " "
+            "y","z"
     };
 
     public HashTable(){
-        this.hash = new ArrayList<>(caracteres.length);
-        for( String letra : caracteres ){
-            hash.add(new ListaLigada(letra));
+        this.hash = new ListaLigada[caracteres.length];
+        for( int i = 0; i < caracteres.length; i++ ){
+            hash[i] = new ListaLigada(caracteres[i]);
         }
     }
 
-    public boolean funcaoHash(String value, ListaLigada lista, int index){
-        String valueLower = value.toLowerCase(Locale.ROOT);
-            if (valueLower.substring(index, index+1).equals(lista.getHead().getInfo())) {
-                return true;
-            }
-        return false;
+    public int funcaoHash(String resp){
+        return resp.toLowerCase(Locale.ROOT).toCharArray()[0]-97;
     }
 
-    public boolean insere(String value, int pos){
-        for ( ListaLigada index : hash ) {
-            if(this.funcaoHash(value, index, pos)) {
-                index.insereNode(value);
-                return true;
-            }
-        }
-        return false;
+    public void insere(Responsavel resp, ContratoRepository contratoRepo, String cnpj){
+        hash[this.funcaoHash(resp.getNome())]
+                .insereNode(new ResponsavelCacheModel(
+                        resp.getNome()
+                        , contratoRepo.countAllByFkResponsavel(resp)
+                        , resp.getImagem()
+                        , cnpj
+                        , resp.getCpf()));
     }
 
-    public ListaLigada retornaLista(String value, int pos){
-        for ( ListaLigada index : hash ) {
-            if(this.funcaoHash(value, index, pos)){
-                return index;
-            }
-            cont++;
-        }
-        cont = 0;
-        return null;
+    public List<ResponsavelCacheModel> retornaLista(String value, String cnpj){
+        return hash[this.funcaoHash(value)].filtraLista(value, cnpj);
+    }
+
+    public void remove(Responsavel resp, String cnpj) {
+        hash[this.funcaoHash(resp.getNome())].removeNode(resp.getCpf(), cnpj);
     }
 }

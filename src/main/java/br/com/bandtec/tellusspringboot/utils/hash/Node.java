@@ -1,16 +1,19 @@
 package br.com.bandtec.tellusspringboot.utils.hash;
 
+import br.com.bandtec.tellusspringboot.domains.Responsavel;
+import br.com.bandtec.tellusspringboot.domains.ResponsavelCacheModel;
+
 public class Node {
-    private String info;
+    private ResponsavelCacheModel info;
     private Node next;
 
-    public Node(String info){
+    public Node(ResponsavelCacheModel info){
         this.info = info;
         this.next = null;
     }
 
     // GETTERS e SETTERS
-    public String getInfo() {
+    public ResponsavelCacheModel getInfo() {
         return info;
     }
 
@@ -18,7 +21,7 @@ public class Node {
         return next;
     }
 
-    public void setInfo(String info) {
+    public void setInfo(ResponsavelCacheModel info) {
         this.info = info;
     }
 

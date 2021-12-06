@@ -3,7 +3,10 @@ package br.com.bandtec.tellusspringboot.controllers;
 import br.com.bandtec.tellusspringboot.domains.*;
 import br.com.bandtec.tellusspringboot.handlers.GerenteHandler;
 import br.com.bandtec.tellusspringboot.repositories.*;
+import br.com.bandtec.tellusspringboot.services.HashService;
 import br.com.bandtec.tellusspringboot.utils.Util;
+import br.com.bandtec.tellusspringboot.utils.hash.HashTable;
+import com.amazonaws.services.s3.AmazonS3Client;
 import io.swagger.annotations.*;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.spring.web.json.Json;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -77,7 +81,7 @@ public class GerenteController {
     @CrossOrigin
     @PostMapping
     public ResponseEntity postGerente(@RequestBody Gerente gerente) {
-        String valCpf = Util.validaCpf(gerente.getCpf());
+        String valCpf = Util.formataCpf(gerente.getCpf());
         if(!valCpf.equals("")) {
             if (repositoryGerente.existsByCpf(valCpf)) {
                 System.out.println("[postGerente] Gerente já é cadastrado");
@@ -95,18 +99,12 @@ public class GerenteController {
     @ApiOperation(value = "Deleta um gerente do banco.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Deleta o gerente."),
-            @ApiResponse(code = 204, message = "Não insere gerente no banco e retorna mensagem de erro.")
+            @ApiResponse(code = 404, message = "Não insere gerente no banco e retorna mensagem de erro.")
     })
     @CrossOrigin
     @DeleteMapping
     public ResponseEntity deleteGerente(
-            @ApiParam(
-                    name =  "cpf",
-                    type = "String",
-                    value = "CPF do Gerente",
-                    example = "515.973.188-17",
-                    required = true
-            )
+            @ApiParam(name =  "cpf", type = "String", value = "CPF do Gerente", example = "515.973.188-17", required = true)
             @RequestParam("cpf") String cpf
     ) {
         if (repositoryGerente.existsByCpf(cpf)) {
@@ -114,42 +112,19 @@ public class GerenteController {
             return ResponseEntity.status(200).body("Gerente deletado com sucesso");
         }
         System.out.println("[deleteGerente] Gerente com o cpf " + cpf + " não foi encontrado");
-        return ResponseEntity.status(204).build();
-    }
-
-    @CrossOrigin
-    @GetMapping("/teste")
-    public ResponseEntity getTeste()
-    {
-        Escola escola = new Escola();
-        escola.setId(1);
-        List<Contrato> lista = contratoRepo.findAllByFkEscola(escola);
-
-        return ResponseEntity.status(200).body(lista);
+        return ResponseEntity.status(404).build();
     }
 
     @ApiOperation(value = "Faz um cadastro massivo via .csv.")
     @CrossOrigin
     @PostMapping("/csv-download")
     public ResponseEntity<String> CadastroMassivo(
-            @ApiParam(
-                    name =  "file",
-                    type = "MultipartFile",
-                    value = "Arquivo .csv que contém os dados a serem inseridos",
-                    example = "teste.csv",
-                    required = true
-            )
+            @ApiParam(name =  "file", type = "MultipartFile", value = "Arquivo .csv que contém os dados a serem inseridos", example = "teste.csv", required = true)
             @RequestParam("file") MultipartFile file,
-            @ApiParam(
-                    name =  "cpf",
-                    type = "String",
-                    value = "CPF do Gerente",
-                    example = "515.973.188-17",
-                    required = true
-            )
+            @ApiParam(name =  "cpf", type = "String", value = "CPF do Gerente", example = "515.973.188-17", required = true)
             @RequestParam("cpf") String cpfGerente) throws IOException {
         if(!Objects.equals(file.getContentType(), "text/csv") && !Objects.equals(file.getContentType(), "application/vnd.ms-excel")){
-            return ResponseEntity.status(400).body("Arquivo enviado não está no formato correto. Envie um arquivo .csv :).");
+            return ResponseEntity.status(400).body("Arquivo enviado não está no formato correto. Envie um arquivo .cs.");
         }
 
         if(repositoryGerente.existsByCpf(cpfGerente)) {
@@ -169,20 +144,14 @@ public class GerenteController {
             return ResponseEntity.status(404).body("Gerente informado não foi encontrado.");
         }
 
-
     }
 
     @CrossOrigin
     @GetMapping("/pesquisa")
     public ResponseEntity pesquisaHashTable(@RequestParam("value") String value, @RequestParam("cnpj") String cnpj) throws IOException {
         if(escolaRepo.existsByCnpj(cnpj)){
-            List<String> list = new GerenteHandler().pesquisaHash(value, 0, cnpj, contratoRepo, escolaRepo);
-            List<Responsavel> listResp = new ArrayList<Responsavel>();
-            for ( String nomeResp : list ){
-                List<Responsavel> aux = respRepo.findResponsavelsByNome(nomeResp);
-                listResp.addAll(aux);
-            }
-            return ResponseEntity.status(200).body(listResp);
+            List<ResponsavelCacheModel> list = new GerenteHandler().pesquisaHash(value, cnpj);
+            return ResponseEntity.status(200).body(list);
         }
         return ResponseEntity.status(404).build();
     }

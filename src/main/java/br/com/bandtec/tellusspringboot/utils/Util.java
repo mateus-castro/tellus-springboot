@@ -2,7 +2,7 @@ package br.com.bandtec.tellusspringboot.utils;
 
 public class Util {
 
-    public static String validaCpf(String cpf){
+    public static String formataCpf(String cpf){
         if (cpf.matches("([0-9]{2}[\\.]?[0-9]{3}[\\.]?[0-9]{3}[\\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\\.]?[0-9]{3}[\\.]?[0-9]{3}[-]?[0-9]{2})")){
             cpf = cpf
                     .replaceAll("\\.", "")
@@ -11,6 +11,21 @@ public class Util {
             return cpf;
         } else if (cpf.length() == 11){
             return cpf;
+        } else {
+            return "";
+        }
+    }
+
+    // TODO ajustar e testar esse método
+    public static String formataCnpj(String cnpj){
+        if (cnpj.matches("(^\\d{2}.\\d{3}.\\d{3}/\\d{4}-\\d{2}$)")){
+            cnpj = cnpj
+                    .replaceAll("\\.", "")
+                    .replace("-", "")
+                    .replace("\\/", "");
+            return cnpj;
+        } else if (cnpj.length() == 11){
+            return cnpj;
         } else {
             return "";
         }

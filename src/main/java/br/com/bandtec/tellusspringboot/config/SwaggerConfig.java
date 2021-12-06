@@ -1,4 +1,4 @@
-package br.com.bandtec.tellusspringboot;
+package br.com.bandtec.tellusspringboot.config;
 import io.swagger.models.auth.In;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

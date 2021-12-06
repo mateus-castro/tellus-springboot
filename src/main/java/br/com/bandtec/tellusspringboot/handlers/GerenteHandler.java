@@ -3,6 +3,7 @@ package br.com.bandtec.tellusspringboot.handlers;
 
 import br.com.bandtec.tellusspringboot.domains.*;
 import br.com.bandtec.tellusspringboot.repositories.*;
+import br.com.bandtec.tellusspringboot.services.HashService;
 import br.com.bandtec.tellusspringboot.utils.Util;
 import br.com.bandtec.tellusspringboot.utils.hash.HashTable;
 import br.com.bandtec.tellusspringboot.utils.hash.ListaLigada;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class GerenteHandler {
@@ -80,7 +82,7 @@ public class GerenteHandler {
         registro = registro.replaceFirst(email+";", "");
 
         String cpf = this.separaCampo(registro);
-        String formattedCpf = Util.validaCpf(cpf);
+        String formattedCpf = Util.formataCpf(cpf);
         if (formattedCpf.equals("")){
             return "Registro " + nReg + ": CPF do [Responsável] é inválido.";
         }
@@ -184,9 +186,8 @@ public class GerenteHandler {
             novoContrato.setDataInicio(dataInicio);
             novoContrato.setSituacao(situacao);
 
-
-
             contRepo.save(novoContrato);
+            new HashService().insereEmCache(resp, escola);
             registraPagamento(novoContrato);
 
             return  "";
@@ -243,41 +244,8 @@ public class GerenteHandler {
         return registro.substring(0, registro.indexOf(";"));
     }
 
-    public List<String> pesquisaHash(String value, int pos, String cnpj, ContratoRepository contRepo, EscolaRepository escolaRepo) {
-        HashTable tabela = new HashTable();
-        List<Responsavel> listResp = new ResponsavelHandler().pegaRespsDaEscola(cnpj, contRepo, escolaRepo);
-
-        for ( Responsavel resp : listResp ) {
-            tabela.insere(resp.getNome(), pos);
-        }
-
-        if(value.length() >= 2){
-            ListaLigada newLista = tabela.retornaLista(value, pos);
-            List<String> list = newLista.converteLista();
-            return this.pesquisaHash(value, list, 1);
-        } else {
-            ListaLigada newLista = tabela.retornaLista(value, pos);
-            return newLista.converteLista();
-        }
-    }
-
-
-
-    public List<String> pesquisaHash(String value, List<String> lista, int pos){
-        HashTable tabela = new HashTable();
-
-        for(String nome : lista ){
-            tabela.insere(nome, pos);
-        }
-
-        ListaLigada newLista = tabela.retornaLista(value, pos);
-        List<String> nameList = newLista.converteLista();
-
-        if(value.length() == pos+1) {
-            return nameList;
-        }else{
-            return pesquisaHash(value, nameList, pos+1);
-        }
-
+    public List<ResponsavelCacheModel> pesquisaHash(String value, String cnpj) {
+        HashTable hash = HashService.hashTable;
+        return hash.retornaLista(value, cnpj);
     }
 }
